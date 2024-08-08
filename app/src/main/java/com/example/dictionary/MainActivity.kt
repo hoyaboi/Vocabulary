@@ -1,0 +1,52 @@
+package com.example.dictionary
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
+import com.example.dictionary.tab.ViewPagerAdapter
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: ViewPager2
+
+    private var backPressedTime: Long = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
+
+        setupViews()
+
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            when(position) {
+                0 -> tab.text = "전체 단어"
+                1 -> tab.text = "체크 단어"
+                2 -> tab.text = "단어 추가"
+                3 -> tab.text = "설정"
+            }
+        }.attach()
+    }
+
+    private fun setupViews() {
+        tabLayout = findViewById(R.id.tab_layout)
+        viewPager = findViewById(R.id.view_pager)
+        viewPager.adapter = ViewPagerAdapter(this)
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+            finishAffinity()
+            return
+        } else {
+            Toast.makeText(this, "단어장을 닫으려면 뒤로 가기 버튼을 한 번 더 누르세요", Toast.LENGTH_SHORT).show()
+        }
+        backPressedTime = System.currentTimeMillis()
+    }
+}

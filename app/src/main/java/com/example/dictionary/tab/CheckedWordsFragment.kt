@@ -5,56 +5,98 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.dictionary.Database
 import com.example.dictionary.R
+import com.example.dictionary.WordAdapter
+import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [CheckedWordsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CheckedWordsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: WordAdapter
+    private lateinit var database: Database
+    private lateinit var auth: FirebaseAuth
+
+    private lateinit var uncheckButton: MaterialButton
+    private lateinit var hideEngButton: MaterialButton
+    private lateinit var hideKorButton: MaterialButton
+    private lateinit var resetButton: MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_checked_words, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CheckedWordsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CheckedWordsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupViews(view)
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        auth = FirebaseAuth.getInstance()
+        database = Database()
+
+        refreshData()
+
+        uncheckButton.setOnClickListener {
+            updateCheckedStatus()
+        }
+
+        hideEngButton.setOnClickListener {
+            adapter.hideEnglishText()
+        }
+
+        hideKorButton.setOnClickListener {
+            adapter.hideKoreanText()
+        }
+
+        resetButton.setOnClickListener {
+            adapter.resetWords()
+        }
+    }
+
+    private fun setupViews(view: View) {
+        recyclerView = view.findViewById(R.id.words_list)
+        uncheckButton = view.findViewById(R.id.uncheck_btn)
+        hideEngButton = view.findViewById(R.id.hide_eng_btn)
+        hideKorButton = view.findViewById(R.id.hide_kor_btn)
+        resetButton = view.findViewById(R.id.reset_btn)
+    }
+
+    private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
+        uncheckButton.visibility = if (hasSelectedWords) View.VISIBLE else View.GONE
+    }
+
+    private fun updateCheckedStatus() {
+        val selectedWords = adapter.getSelectedWords()
+        val userId = auth.currentUser?.uid ?: return
+
+        selectedWords.forEach { word ->
+            if (word.checked) {
+                word.checked = false
+                database.updateWordCheckedStatus(word.id, userId, false)
             }
+        }
+
+        adapter.clearSelection()
+        toggleEditButtonsVisibility(false)
+        refreshData()
+    }
+
+    private fun refreshData() {
+        val userId = auth.currentUser?.uid ?: return
+        database.getWords(userId, requireContext()) { wordList ->
+            val checkedWords = wordList.filter { it.checked }
+            adapter = WordAdapter(checkedWords) { hasSelectedWords ->
+                toggleEditButtonsVisibility(hasSelectedWords)
+            }
+            recyclerView.adapter = adapter
+        }
     }
 }

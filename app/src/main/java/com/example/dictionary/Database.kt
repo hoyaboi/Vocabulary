@@ -14,9 +14,10 @@ data class User(
 )
 
 data class Word(
-    val english: String,
-    val korean: String,
-    val isChecked: Boolean
+    val id: String = "",
+    var english: String = "",
+    var korean: String = "",
+    var checked: Boolean = false
 )
 
 class Database {
@@ -29,7 +30,8 @@ class Database {
 
     fun saveWord(word: Word, userId: String) {
         val wordId = userReference.child(userId).child("words").push().key ?: ""
-        userReference.child(userId).child("words").child(wordId).setValue(word)
+        val wordWithId = word.copy(id = wordId)
+        userReference.child(userId).child("words").child(wordId).setValue(wordWithId)
     }
 
     fun updateWord(wordId: String, word: Word, userId: String) {
@@ -57,5 +59,15 @@ class Database {
                 Toast.makeText(context, "단어를 불러오는데 실패했습니다. 다시 시도하세요.", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    fun updateWordCheckedStatus(wordId: String, userId: String, checked: Boolean) {
+        val databaseReference = userReference.child(userId).child("words").child(wordId)
+
+        val updateData = mapOf<String, Any>(
+            "checked" to checked
+        )
+
+        databaseReference.updateChildren(updateData)
     }
 }

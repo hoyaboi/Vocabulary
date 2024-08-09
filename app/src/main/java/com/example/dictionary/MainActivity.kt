@@ -2,9 +2,11 @@ package com.example.dictionary
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.example.dictionary.tab.ViewPagerAdapter
 import com.google.android.material.tabs.TabLayout
@@ -18,8 +20,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+        enableEdgeToEdge()
 
         setupViews()
 
@@ -28,7 +30,7 @@ class MainActivity : AppCompatActivity() {
                 0 -> tab.text = "전체 단어"
                 1 -> tab.text = "체크 단어"
                 2 -> tab.text = "단어 추가"
-                3 -> tab.text = "설정"
+                3 -> tab.text = "개인 설정"
             }
         }.attach()
     }

@@ -176,7 +176,9 @@ class Database {
         })
     }
 
-    fun updateWordToUnchecked(wordId: String, userId: String, isChecked: Boolean) {
+    fun updateWordToUnchecked(wordId: String, userId: String) {
+        Log.d("UpdateWordToUnchecked", "Updating word with ID: $wordId")
+
         userReference.child(userId).child("vocabs").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (vocabSnapshot in snapshot.children) {
@@ -184,7 +186,7 @@ class Database {
                     val wordCheckRef = vocabSnapshot.child("checked").child(wordId)
                     if (wordCheckRef.exists()) {
                         userReference.child(userId).child("vocabs").child(vocabId)
-                            .child("checked").child(wordId).setValue(isChecked)
+                            .child("checked").child(wordId).setValue(false)
                     }
                 }
             }

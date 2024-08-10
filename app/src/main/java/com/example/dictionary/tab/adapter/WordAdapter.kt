@@ -1,10 +1,12 @@
-package com.example.dictionary
+package com.example.dictionary.tab.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.dictionary.R
+import com.example.dictionary.Word
 import com.google.android.material.checkbox.MaterialCheckBox
 
 class WordAdapter(

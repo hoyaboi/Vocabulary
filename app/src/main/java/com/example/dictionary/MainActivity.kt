@@ -28,10 +28,10 @@ class MainActivity : AppCompatActivity() {
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when(position) {
-                0 -> tab.text = "전체 단어"
+                0 -> tab.text = "단어장"
                 1 -> tab.text = "체크 단어"
-                2 -> tab.text = "단어 추가"
-                3 -> tab.text = "개인 설정"
+                2 -> tab.text = "검색"
+                3 -> tab.text = "설정"
             }
         }.attach()
     }

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dictionary.Database
 import com.example.dictionary.R
-import com.example.dictionary.WordAdapter
+import com.example.dictionary.tab.adapter.WordAdapter
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 
@@ -80,7 +80,7 @@ class CheckedWordsFragment : Fragment() {
         selectedWords.forEach { word ->
             if (word.checked) {
                 word.checked = false
-                database.updateWordCheckedStatus(word.id, userId, false)
+                database.updateWordToUnchecked(word.id, userId, false)
             }
         }
 
@@ -91,12 +91,17 @@ class CheckedWordsFragment : Fragment() {
 
     private fun refreshData() {
         val userId = auth.currentUser?.uid ?: return
-        database.getWords(userId, requireContext()) { wordList ->
-            val checkedWords = wordList.filter { it.checked }
+
+        database.getCheckedWords(userId, requireContext()) { checkedWords ->
             adapter = WordAdapter(checkedWords) { hasSelectedWords ->
                 toggleEditButtonsVisibility(hasSelectedWords)
             }
             recyclerView.adapter = adapter
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshData()  // 화면이 다시 보일 때마다 데이터 갱신
     }
 }

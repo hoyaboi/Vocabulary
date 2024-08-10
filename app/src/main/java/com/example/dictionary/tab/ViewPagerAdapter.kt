@@ -6,7 +6,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 
 class ViewPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
     private val fragmentList = listOf(
-        AllWordsFragment(),
+        VocabularyFragment(),
         CheckedWordsFragment(),
         AddWordFragment(),
         SettingsFragment()

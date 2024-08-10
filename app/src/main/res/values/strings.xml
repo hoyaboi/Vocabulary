@@ -1,4 +1,5 @@
 <resources>
+    <!--  로그인  -->
     <string name="app_name">Vocabulary</string>
     <string name="sign_in">로그인</string>
     <string name="sign_up">회원가입</string>
@@ -9,7 +10,7 @@
     <string name="confirm">확인</string>
     <string name="cancel">취소</string>
 
-
+    <!--  전체 단어, 체크 단어  -->
     <string name="hide_english">영어</string>
     <string name="hide_korean">한국어</string>
     <string name="reset">초기화</string>
@@ -17,9 +18,13 @@
     <string name="check">체크</string>
     <string name="uncheck">체크 해제</string>
 
+    <!--  단어 추가  -->
     <string name="input_eng_word">영어 단어 입력</string>
     <string name="input_kor_word">뜻 입력</string>
     <string name="eng_example">apple</string>
     <string name="kor_example">사과</string>
     <string name="add">추가하기</string>
+
+    <!--  개인 설정  -->
+    <string name="sign_out">로그아웃</string>
 </resources>

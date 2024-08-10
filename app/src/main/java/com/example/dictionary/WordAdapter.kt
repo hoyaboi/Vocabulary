@@ -51,6 +51,9 @@ class WordAdapter(
             if (holder.engText.text.isEmpty()) {
                 holder.engText.text = word.english
                 hiddenEnglishWords.remove(word.id)
+            } else {
+                hiddenEnglishWords.add(word.id)
+                notifyDataSetChanged()
             }
         }
 
@@ -58,6 +61,9 @@ class WordAdapter(
             if (holder.korText.text.isEmpty()) {
                 holder.korText.text = word.korean
                 hiddenKoreanWords.remove(word.id)
+            } else {
+                hiddenKoreanWords.add(word.id)
+                notifyDataSetChanged()
             }
         }
     }

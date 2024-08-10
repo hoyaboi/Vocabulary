@@ -3,13 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".tab.SettingsFragment">
 
-    <TextView
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sign_out_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Settings Fragment"
-        android:textSize="30sp"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:text="@string/sign_out"
+        android:textColor="@color/black"
+        android:backgroundTint="@color/white"
+        app:strokeColor="@color/black"
+        app:strokeWidth="1dp"
+        app:rippleColor="@color/gray"/>
 
 </FrameLayout>

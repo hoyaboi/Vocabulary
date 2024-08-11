@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         // 상태표시줄 색상 변경
-        window.statusBarColor = ContextCompat.getColor(this, R.color.edge)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.gray)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
         setupViews()

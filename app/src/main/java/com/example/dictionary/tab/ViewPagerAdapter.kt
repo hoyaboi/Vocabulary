@@ -8,7 +8,7 @@ class ViewPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapte
     private val fragmentList = listOf(
         VocabularyFragment(),
         CheckedWordsFragment(),
-        AddWordFragment(),
+        AddVocabFragment(),
         SettingsFragment()
     )
 

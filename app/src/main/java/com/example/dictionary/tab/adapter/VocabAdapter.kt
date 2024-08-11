@@ -11,7 +11,8 @@ import com.example.dictionary.Vocab
 
 class VocabAdapter(
     private val vocabList: List<Vocab>,
-    private val onVocabClicked: (Vocab) -> Unit
+    private val onVocabClicked: (Vocab) -> Unit,
+    private val onVocabLongClicked: (Vocab) -> Unit
 ) : RecyclerView.Adapter<VocabAdapter.VocabViewHolder>() {
 
     class VocabViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -34,12 +35,17 @@ class VocabAdapter(
         // 첫 번째 아이템에만 상단에 margin 추가
         val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
         if (position == 0) {
-            layoutParams.topMargin = 10.dpToPx(holder.itemView.context)
+            layoutParams.topMargin = 15.dpToPx(holder.itemView.context)
         }
         holder.itemView.layoutParams = layoutParams
 
         holder.itemView.setOnClickListener {
             onVocabClicked(vocab)
+        }
+
+        holder.itemView.setOnLongClickListener {
+            onVocabLongClicked(vocab)
+            true
         }
     }
 

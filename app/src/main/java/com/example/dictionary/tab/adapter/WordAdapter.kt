@@ -11,7 +11,8 @@ import com.google.android.material.checkbox.MaterialCheckBox
 
 class WordAdapter(
     private val items: List<Word>,
-    private val onCheckChanged: (Boolean) -> Unit
+    private val onCheckChanged: (Boolean) -> Unit,
+    private val isCheckBoxEnabled: Boolean = true // 기본값은 true, 필요시 비활성화
 ) : RecyclerView.Adapter<WordAdapter.WordViewHolder>() {
 
     private val selectedWords = mutableSetOf<Word>()
@@ -40,32 +41,37 @@ class WordAdapter(
         holder.checkBox.setOnCheckedChangeListener(null) // 리스너 초기화
         holder.checkBox.isChecked = selectedWords.contains(word)
 
-        holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                selectedWords.add(word)
-            } else {
-                selectedWords.remove(word)
-            }
-            onCheckChanged(selectedWords.isNotEmpty())
-        }
+        // 체크박스 클릭 가능 여부 설정
+        holder.checkBox.isEnabled = isCheckBoxEnabled
 
-        holder.engText.setOnClickListener {
-            if (holder.engText.text.isEmpty()) {
-                holder.engText.text = word.english
-                hiddenEnglishWords.remove(word.id)
-            } else {
-                hiddenEnglishWords.add(word.id)
-                notifyDataSetChanged()
+        if (isCheckBoxEnabled) {
+            holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedWords.add(word)
+                } else {
+                    selectedWords.remove(word)
+                }
+                onCheckChanged(selectedWords.isNotEmpty())
             }
-        }
 
-        holder.korText.setOnClickListener {
-            if (holder.korText.text.isEmpty()) {
-                holder.korText.text = word.korean
-                hiddenKoreanWords.remove(word.id)
-            } else {
-                hiddenKoreanWords.add(word.id)
-                notifyDataSetChanged()
+            holder.engText.setOnClickListener {
+                if (holder.engText.text.isEmpty()) {
+                    holder.engText.text = word.english
+                    hiddenEnglishWords.remove(word.id)
+                } else {
+                    hiddenEnglishWords.add(word.id)
+                    notifyDataSetChanged()
+                }
+            }
+
+            holder.korText.setOnClickListener {
+                if (holder.korText.text.isEmpty()) {
+                    holder.korText.text = word.korean
+                    hiddenKoreanWords.remove(word.id)
+                } else {
+                    hiddenKoreanWords.add(word.id)
+                    notifyDataSetChanged()
+                }
             }
         }
     }
@@ -95,5 +101,6 @@ class WordAdapter(
         notifyDataSetChanged()
     }
 }
+
 
 

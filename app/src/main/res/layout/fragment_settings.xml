@@ -12,10 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/sign_out"
-        android:textColor="@color/black"
-        android:backgroundTint="@color/white"
-        app:strokeColor="@color/black"
-        app:strokeWidth="1dp"
-        app:rippleColor="@color/gray"/>
+        android:backgroundTint="@color/gray"
+        app:rippleColor="@color/white"/>
 
 </FrameLayout>

@@ -19,7 +19,6 @@ data class Word(
     val id: String = "",
     var english: String = "",
     var korean: String = "",
-    var checked: Boolean = false
 )
 
 data class Vocab(
@@ -35,10 +34,12 @@ class Database {
     private val userReference = database.getReference("users")
     private val vocabReference = database.getReference("vocabs")
 
+    // 유저 정보 저장
     fun saveUser(user: User) {
         userReference.child(user.uid).setValue(user)
     }
 
+    // 단어장 생성
     fun createVocab(vocabName: String, userId: String, context: Context, callback: () -> Unit) {
         userReference.child(userId).child("name").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -63,6 +64,7 @@ class Database {
         })
     }
 
+    // 단어장에 단어 저장
     fun saveWordToVocab(word: Word, vocabId: String, userId: String, callback: (Boolean) -> Unit) {
         vocabReference.child(vocabId).child("ownerId").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -88,6 +90,7 @@ class Database {
         })
     }
 
+    // 단어장에서 단어 삭제
     fun deleteWordFromVocab(userId: String, vocabId: String, wordId: String, callback: (Boolean) -> Unit) {
         vocabReference.child(vocabId).child("ownerId").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -107,44 +110,7 @@ class Database {
         })
     }
 
-    fun getWordsFromVocab(userId: String, vocabId: String, context: Context, callback: (List<Word>) -> Unit) {
-        vocabReference.child(vocabId).child("words").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val wordList = mutableListOf<Word>()
-                for (wordSnapshot in snapshot.children) {
-                    val word = wordSnapshot.getValue(Word::class.java)
-                    if (word != null) {
-                        wordList.add(word)
-                    }
-                }
-
-                // 사용자별 체크 상태를 반영
-                userReference.child(userId).child("vocabs").child(vocabId).child("checkedWords")
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(userSnapshot: DataSnapshot) {
-                            for (word in wordList) {
-                                val isChecked = userSnapshot.child(word.id).getValue(Boolean::class.java) ?: false
-                                word.checked = isChecked
-                            }
-                            callback(wordList)
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            Toast.makeText(context, "단어를 불러오는데 실패했습니다. 다시 시도하세요.", Toast.LENGTH_SHORT).show()
-                        }
-                    })
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(context, "단어를 불러오는데 실패했습니다. 다시 시도하세요.", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-    fun updateWordCheckedStatus(wordId: String, vocabId: String, userId: String, checked: Boolean) {
-        userReference.child(userId).child("vocabs").child(vocabId).child("checked").child(wordId).setValue(checked)
-    }
-
+    // 개인 DB에 있는 단어장 목록 불러오기
     fun getVocabsForUser(userId: String, context: Context, callback: (List<Vocab>) -> Unit) {
         userReference.child(userId).child("vocabs").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -176,25 +142,27 @@ class Database {
         })
     }
 
-    fun updateWordToUnchecked(wordId: String, userId: String) {
-        Log.d("UpdateWordToUnchecked", "Updating word with ID: $wordId")
-
-        userReference.child(userId).child("vocabs").addListenerForSingleValueEvent(object : ValueEventListener {
+    // 단어장에서 단어 불러오기
+    fun getWordsFromVocab(userId: String, vocabId: String, context: Context, callback: (List<Word>) -> Unit) {
+        vocabReference.child(vocabId).child("words").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (vocabSnapshot in snapshot.children) {
-                    val vocabId = vocabSnapshot.key ?: continue
-                    val wordCheckRef = vocabSnapshot.child("checked").child(wordId)
-                    if (wordCheckRef.exists()) {
-                        userReference.child(userId).child("vocabs").child(vocabId)
-                            .child("checked").child(wordId).setValue(false)
+                val wordList = mutableListOf<Word>()
+                for (wordSnapshot in snapshot.children) {
+                    val word = wordSnapshot.getValue(Word::class.java)
+                    if (word != null) {
+                        wordList.add(word)
                     }
                 }
+                callback(wordList)
             }
 
-            override fun onCancelled(error: DatabaseError) {}
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "단어를 불러오는데 실패했습니다. 다시 시도하세요.", Toast.LENGTH_SHORT).show()
+            }
         })
     }
 
+    // 개인 DB 단어장에서 체크된 단어 불러오기
     fun getCheckedWords(userId: String, context: Context, callback: (List<Word>) -> Unit) {
         val userVocabsRef = userReference.child(userId).child("vocabs")
         val checkedWordIds = mutableListOf<Pair<String, String>>() // (vocabId, wordId) 페어 리스트
@@ -251,4 +219,106 @@ class Database {
         })
     }
 
+    // 개인 DB 단어장에 단어 체크
+    fun updateWordToChecked(wordId: String, vocabId: String, userId: String) {
+        userReference.child(userId).child("vocabs").child(vocabId).child("checked").child(wordId).setValue(true)
+    }
+
+    // 개인 DB 단어장에 단어 체크 해제
+    fun updateWordToUnchecked(wordId: String, userId: String, callback: () -> Unit) {
+        Log.d("UpdateWordToUnchecked", "Updating word with ID: $wordId")
+
+        userReference.child(userId).child("vocabs").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (vocabSnapshot in snapshot.children) {
+                    val vocabId = vocabSnapshot.key ?: continue
+                    val wordCheckRef = vocabSnapshot.child("checked").child(wordId)
+                    if (wordCheckRef.exists()) {
+                        userReference.child(userId).child("vocabs").child(vocabId)
+                            .child("checked").child(wordId).setValue(false).addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    callback()
+                                }
+                            }
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    // 사용자 vocabs에서 해당 단어장 삭제
+    fun deleteVocab(userId: String, vocabId: String, callback: (Boolean) -> Unit) {
+        userReference.child(userId).child("vocabs").child(vocabId).removeValue()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    callback(true)
+                } else {
+                    callback(false)
+                }
+            }
+    }
+
+    // 단어장 검색
+    fun searchVocabs(vocabName: String, vocabCreator: String, callback: (List<Vocab>) -> Unit) {
+        val query = vocabReference.orderByChild("name")
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val result = mutableListOf<Vocab>()
+
+                for (vocabSnapshot in snapshot.children) {
+                    val vocab = vocabSnapshot.getValue(Vocab::class.java) ?: continue
+
+                    val nameMatches = vocab.name.contains(vocabName, ignoreCase = true)
+                    val creatorMatches = vocabCreator.isEmpty() || vocab.owner.contains(vocabCreator, ignoreCase = true)
+
+                    if (nameMatches && creatorMatches) {
+                        result.add(vocab)
+                    }
+                }
+
+                callback(result)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(emptyList()) // 오류 발생 시 빈 리스트 반환
+            }
+        })
+    }
+
+    // 검색한 단어장 추가
+    fun addVocabToUser(vocabId: String, userId: String, callback: (Boolean) -> Unit) {
+        vocabReference.child(vocabId).child("words").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val wordIds = snapshot.children.map { it.key }
+                    val userVocabRef = userReference.child(userId).child("vocabs").child(vocabId).child("checked")
+
+                    val updates = wordIds.associateWith { false }
+                    userVocabRef.setValue(updates).addOnCompleteListener { task ->
+                        callback(task.isSuccessful)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(false)
+            }
+        })
+    }
+
+    fun isVocabAlreadyAdded(vocabId: String, userId: String, callback: (Boolean) -> Unit) {
+        userReference.child(userId).child("vocabs").child(vocabId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                callback(snapshot.exists()) // 단어장이 이미 존재하는지 여부를 콜백으로 전달
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(false) // 에러 발생 시에도 false 반환
+            }
+        })
+    }
 }

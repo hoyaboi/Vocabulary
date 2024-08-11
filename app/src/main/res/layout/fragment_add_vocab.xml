@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".tab.AddVocabFragment">
+
+    <TextView
+        android:id="@+id/search_vocab_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="@string/search_vocab"
+        android:textSize="20sp"
+        android:background="@color/line_gray"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/search_vocab_text"
+        android:background="@color/light_gray"/>
+
+    <LinearLayout
+        android:id="@+id/search_vocab_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/search_vocab_text"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/search_vocab_input_container"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/vocab_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/vocab_name"/>
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/vocab_creator_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/vocab_creator"/>
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/search_btn"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="@color/gray"
+            android:text="@string/search"
+            android:textColor="@color/white"
+            app:cornerRadius="20dp"
+            app:rippleColor="@color/white"/>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/search_vocab_container"
+        android:background="@color/light_gray"/>
+
+    <TextView
+        android:id="@+id/result_vocab_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/separator"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="@string/result_vocab"
+        android:textSize="20sp"
+        android:background="@color/line_gray"/>
+
+    <View
+        android:id="@+id/separator2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/result_vocab_text"
+        android:background="@color/light_gray"/>
+
+    <TextView
+        android:id="@+id/info_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/separator2"
+        android:text="@string/info_text"
+        android:textSize="16sp"
+        android:textColor="@color/gray"
+        android:gravity="center"
+        android:elevation="8dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/vocabs_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/separator2"/>
+
+</RelativeLayout>

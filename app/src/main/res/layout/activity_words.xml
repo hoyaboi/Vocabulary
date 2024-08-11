@@ -10,7 +10,8 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/gray">
 
         <LinearLayout
             android:id="@+id/toolbar_container"
@@ -24,7 +25,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingStart="20dp"
-                app:title="A 단어장"/>
+                app:title="A 단어장"
+                app:titleTextColor="@color/white"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_word_btn"
@@ -33,18 +35,13 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="10dp"
                 android:text="@string/add_word"
-                android:textColor="@color/black"
-                android:backgroundTint="@color/white"
-                app:strokeColor="@color/black"
-                app:strokeWidth="1dp"
+                android:textColor="@color/gray"
+                android:backgroundTint="@color/line_gray"
+                app:strokeWidth="2dp"
+                app:strokeColor="@color/light_gray"
                 app:rippleColor="@color/gray"/>
 
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/black"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -67,9 +64,9 @@
             android:layout_marginStart="80dp"
             android:layout_marginEnd="5dp"
             android:text="@string/delete"
-            android:textColor="@color/black"
+            android:textColor="@color/gray"
             android:backgroundTint="@color/white"
-            app:strokeColor="@color/black"
+            app:strokeColor="@color/light_gray"
             app:strokeWidth="1dp"
             app:rippleColor="@color/gray"/>
 
@@ -81,7 +78,7 @@
             android:layout_marginStart="5dp"
             android:layout_marginEnd="80dp"
             android:text="@string/check"
-            android:backgroundTint="@color/black"
+            android:backgroundTint="@color/gray"
             app:rippleColor="@color/white"/>
 
     </LinearLayout>
@@ -90,23 +87,25 @@
         android:id="@+id/words_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/btn_container"
+        android:layout_above="@id/separator"
         android:layout_below="@id/appbar_container"/>
 
     <View
+        android:id="@+id/separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/black"
-        android:layout_below="@id/words_list"/>
+        android:layout_above="@id/btn_container"
+        android:background="@color/light_gray"/>
 
     <LinearLayout
         android:id="@+id/btn_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@color/line_gray">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/hide_eng_btn"
@@ -116,9 +115,9 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="5dp"
             android:text="@string/hide_english"
-            android:textColor="@color/black"
+            android:textColor="@color/gray"
             android:backgroundTint="@color/white"
-            app:strokeColor="@color/black"
+            app:strokeColor="@color/light_gray"
             app:strokeWidth="1dp"
             app:rippleColor="@color/gray"/>
 
@@ -130,7 +129,7 @@
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
             android:text="@string/reset"
-            android:backgroundTint="@color/black"
+            android:backgroundTint="@color/gray"
             app:rippleColor="@color/white"/>
 
         <com.google.android.material.button.MaterialButton
@@ -141,9 +140,9 @@
             android:layout_marginStart="5dp"
             android:layout_marginEnd="20dp"
             android:text="@string/hide_korean"
-            android:textColor="@color/black"
+            android:textColor="@color/gray"
             android:backgroundTint="@color/white"
-            app:strokeColor="@color/black"
+            app:strokeColor="@color/light_gray"
             app:strokeWidth="1dp"
             app:rippleColor="@color/gray"/>
 

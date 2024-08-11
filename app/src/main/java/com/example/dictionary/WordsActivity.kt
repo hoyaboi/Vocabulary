@@ -1,5 +1,7 @@
 package com.example.dictionary
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -40,7 +42,7 @@ class WordsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_words)
         // 상태표시줄 색상 변경
-        window.statusBarColor = ContextCompat.getColor(this, R.color.edge)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.gray)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
         vocabId = intent.getStringExtra("vocabId") ?: throw IllegalStateException("vocabId가 전달되지 않았습니다.")
@@ -94,7 +96,29 @@ class WordsActivity : AppCompatActivity() {
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
-        editBtnContainer.visibility = if (hasSelectedWords) View.VISIBLE else View.GONE
+        if (hasSelectedWords) {
+            if (editBtnContainer.visibility == View.GONE) {
+                editBtnContainer.apply {
+                    visibility = View.VISIBLE
+                    alpha = 0f
+                    animate()
+                        .alpha(1f)
+                        .setDuration(100)
+                        .setListener(null)
+                }
+            }
+        } else {
+            if (editBtnContainer.visibility == View.VISIBLE) {
+                editBtnContainer.animate()
+                    .alpha(0f)
+                    .setDuration(100)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            editBtnContainer.visibility = View.GONE
+                        }
+                    })
+            }
+        }
     }
 
     private fun updateCheckedStatus() {
@@ -102,14 +126,13 @@ class WordsActivity : AppCompatActivity() {
         val userId = auth.currentUser?.uid ?: return
 
         selectedWords.forEach { word ->
-            if (!word.checked) {
-                word.checked = true
-                database.updateWordCheckedStatus(word.id, vocabId, userId, true)
-            }
+            database.updateWordToChecked(word.id, vocabId, userId)
         }
 
         adapter.clearSelection()
         toggleEditButtonsVisibility(false)
+
+        Toast.makeText(this, "선택된 단어가 체크되었습니다", Toast.LENGTH_SHORT).show()
         refreshData()
     }
 
@@ -117,17 +140,26 @@ class WordsActivity : AppCompatActivity() {
         val selectedWords = adapter.getSelectedWords()
         val userId = auth.currentUser?.uid ?: return
 
-        selectedWords.forEach { word ->
-            database.deleteWordFromVocab(userId, vocabId, word.id) { success ->
-                if (!success) {
-                    Toast.makeText(this, "단어장 생성자만 삭제할 수 있습니다.", Toast.LENGTH_SHORT).show()
+        AlertDialog.Builder(this)
+            .setTitle("단어 삭제")
+            .setMessage("선택한 단어를 삭제하시겠습니까?")
+            .setPositiveButton("삭제") { _, _ ->
+                selectedWords.forEach { word ->
+                    database.deleteWordFromVocab(userId, vocabId, word.id) { success ->
+                        if (!success) {
+                            Toast.makeText(this, "단어장 생성자만 삭제할 수 있습니다", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "선택된 단어가 삭제되었습니다", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
+                adapter.clearSelection()
+                toggleEditButtonsVisibility(false)
+                refreshData()
             }
-        }
-
-        adapter.clearSelection()
-        toggleEditButtonsVisibility(false)
-        refreshData()
+            .setNegativeButton("취소", null)
+            .create()
+            .show()
     }
 
     private fun showSaveWordDialog() {
@@ -135,24 +167,24 @@ class WordsActivity : AppCompatActivity() {
         val inflater = layoutInflater
         val dialogView = inflater.inflate(R.layout.dialog_save_word, null)
 
-        builder.setView(dialogView)
-            .setPositiveButton("추가") { _, _ ->
-                val engInput = dialogView.findViewById<TextInputEditText>(R.id.word_eng_input)
-                val korInput = dialogView.findViewById<TextInputEditText>(R.id.word_kor_input)
+        builder.setView(dialogView).setPositiveButton("추가") { _, _ ->
+            val engInput = dialogView.findViewById<TextInputEditText>(R.id.word_eng_input)
+            val korInput = dialogView.findViewById<TextInputEditText>(R.id.word_kor_input)
 
-                val engWord = engInput.text.toString().trim()
-                val korWord = korInput.text.toString().trim()
+            val engWord = engInput.text.toString().trim()
+            val korWord = korInput.text.toString().trim()
 
-                if (engWord.isNotEmpty() && korWord.isNotEmpty()) {
-                    val word = Word(english = engWord, korean = korWord, checked = false)
-                    saveWord(word)
-                } else {
-                    Toast.makeText(this, "영어 단어와 한글 뜻을 입력하세요.", Toast.LENGTH_SHORT).show()
-                }
+            if (engWord.isNotEmpty() && korWord.isNotEmpty()) {
+                val word = Word(english = engWord, korean = korWord)
+                saveWord(word)
+            } else {
+                Toast.makeText(this, "영어 단어와 한글 뜻을 입력하세요.", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("취소", null)
-            .create()
-            .show()
+        }
+        .setTitle("단어 추가")
+        .setNegativeButton("취소", null)
+        .create()
+        .show()
     }
 
     private fun saveWord(word: Word) {
@@ -172,9 +204,9 @@ class WordsActivity : AppCompatActivity() {
         val userId = auth.currentUser?.uid ?: return
 
         database.getWordsFromVocab(userId, vocabId, this) { wordList ->
-            adapter = WordAdapter(wordList) { hasSelectedWords ->
+            adapter = WordAdapter(wordList, onCheckChanged = { hasSelectedWords ->
                 toggleEditButtonsVisibility(hasSelectedWords)
-            }
+            }, isCheckBoxEnabled = true)
             recyclerView.adapter = adapter
         }
     }

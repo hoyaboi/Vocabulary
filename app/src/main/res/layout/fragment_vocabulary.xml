@@ -14,13 +14,15 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/add_vocab_btn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="20dp"
         android:text="@string/add_vocab"
         app:icon="@drawable/add"
-        android:backgroundTint="@color/black"
-        app:rippleColor="@color/white"/>
+        android:backgroundTint="@color/gray"
+        app:rippleColor="@color/white"
+        android:elevation="8dp"
+        android:stateListAnimator="@null"/>
 
 </RelativeLayout>

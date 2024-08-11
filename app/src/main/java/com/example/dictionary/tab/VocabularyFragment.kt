@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.core.view.marginBottom
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dictionary.Database
@@ -53,6 +54,18 @@ class VocabularyFragment : Fragment() {
         addVocabButton.setOnClickListener {
             showAddVocabDialog()
         }
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    // 스크롤 다운 - 버튼 숨기기
+                    addVocabButton.hideWithAnimation()
+                } else if (dy < 0) {
+                    // 스크롤 업 - 버튼 보이기
+                    addVocabButton.showWithAnimation()
+                }
+            }
+        })
     }
 
     private fun setupViews(view: View) {
@@ -63,9 +76,11 @@ class VocabularyFragment : Fragment() {
     private fun refreshData() {
         val userId = auth.currentUser?.uid ?: return
         database.getVocabsForUser(userId, requireContext()) { vocabList ->
-            adapter = VocabAdapter(vocabList) { vocab ->
-                openVocab(vocab)
-            }
+            adapter = VocabAdapter(
+                vocabList,
+                { vocab -> openVocab(vocab) }, // 단어장 클릭 이벤트 처리
+                { vocab -> showDeleteVocabDialog(vocab) } // 단어장 길게 클릭 이벤트 처리
+            )
             recyclerView.adapter = adapter
         }
     }
@@ -77,6 +92,7 @@ class VocabularyFragment : Fragment() {
         val dialogView = inflater.inflate(R.layout.dialog_add_vocab, null)
 
         builder.setView(dialogView)
+            .setTitle("단어장 추가")
             .setPositiveButton("추가") { _, _ ->
                 val vocabNameInput = dialogView.findViewById<TextInputEditText>(R.id.vocab_name_input)
                 val vocabName = vocabNameInput.text.toString()
@@ -85,6 +101,27 @@ class VocabularyFragment : Fragment() {
                     addVocab(vocabName)
                 } else {
                     Toast.makeText(requireContext(), "단어장 이름을 입력하세요.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("취소", null)
+            .create()
+            .show()
+    }
+
+    private fun showDeleteVocabDialog(vocab: Vocab) {
+        val userId = auth.currentUser?.uid ?: return
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("단어장 삭제")
+            .setMessage("단어장을 삭제하시겠습니까?")
+            .setPositiveButton("삭제") { _, _ ->
+                database.deleteVocab(userId, vocab.id) { success ->
+                    if (success) {
+                        Toast.makeText(requireContext(), "단어장이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        refreshData()
+                    } else {
+                        Toast.makeText(requireContext(), "단어장 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             .setNegativeButton("취소", null)
@@ -105,6 +142,26 @@ class VocabularyFragment : Fragment() {
         intent.putExtra("vocabId", vocab.id)
         intent.putExtra("vocabName", vocab.name)
         startActivity(intent)
+    }
+
+    // 버튼 숨기기 애니메이션
+    private fun MaterialButton.hideWithAnimation() {
+        this.animate()
+            .translationY(this.height.toFloat() + this.marginBottom.toFloat())
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction { this.visibility = View.GONE }
+            .start()
+    }
+
+    // 버튼 보이기 애니메이션
+    private fun MaterialButton.showWithAnimation() {
+        this.visibility = View.VISIBLE
+        this.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(200)
+            .start()
     }
 }
 

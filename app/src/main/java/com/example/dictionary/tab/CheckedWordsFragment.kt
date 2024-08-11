@@ -1,11 +1,14 @@
 package com.example.dictionary.tab
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dictionary.Database
@@ -71,36 +74,60 @@ class CheckedWordsFragment : Fragment() {
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
-        uncheckButton.visibility = if (hasSelectedWords) View.VISIBLE else View.GONE
+        if (hasSelectedWords) {
+            if (uncheckButton.visibility == View.GONE) {
+                uncheckButton.apply {
+                    visibility = View.VISIBLE
+                    alpha = 0f
+                    animate()
+                        .alpha(1f)
+                        .setDuration(100)
+                        .setListener(null)
+                }
+            }
+        } else {
+            if (uncheckButton.visibility == View.VISIBLE) {
+                uncheckButton.animate()
+                    .alpha(0f)
+                    .setDuration(100)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            uncheckButton.visibility = View.GONE
+                        }
+                    })
+            }
+        }
     }
 
     private fun updateCheckedStatus() {
         val selectedWords = adapter.getSelectedWords()
         val userId = auth.currentUser?.uid ?: return
 
+        var updateCount = selectedWords.size
         selectedWords.forEach { word ->
-            Log.d("selectedWords", "selectedWords: $word")
-            if (word.checked) {
-                word.checked = false
-                database.updateWordToUnchecked(word.id, userId)
+//            Log.d("selectedWords", "selectedWords: $word")
+            database.updateWordToUnchecked(word.id, userId) {
+                updateCount--
+                if (updateCount == 0) {
+                    adapter.clearSelection()
+                    toggleEditButtonsVisibility(false)
+                    refreshData()
+                }
             }
         }
-
-        adapter.clearSelection()
-        toggleEditButtonsVisibility(false)
-        refreshData()
     }
 
     private fun refreshData() {
         val userId = auth.currentUser?.uid ?: return
 
         database.getCheckedWords(userId, requireContext()) { checkedWords ->
-            adapter = WordAdapter(checkedWords) { hasSelectedWords ->
+            adapter = WordAdapter(checkedWords, onCheckChanged = { hasSelectedWords ->
                 toggleEditButtonsVisibility(hasSelectedWords)
-            }
+            }, isCheckBoxEnabled = true)
             recyclerView.adapter = adapter
         }
     }
+
 
     override fun onResume() {
         super.onResume()

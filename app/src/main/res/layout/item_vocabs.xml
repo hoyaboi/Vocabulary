@@ -10,7 +10,8 @@
     android:orientation="horizontal"
     android:background="@drawable/border"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:elevation="5dp">
 
     <TextView
         android:id="@+id/vocab_name_text"
@@ -20,6 +21,7 @@
         android:layout_gravity="center_vertical"
         android:paddingStart="40dp"
         android:text="A 단어장"
+        android:textColor="@color/white"
         android:textSize="27sp"/>
 
     <View
@@ -27,7 +29,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:background="@color/light_gray"/>
+        android:background="@color/line_gray"/>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -43,6 +45,7 @@
             android:paddingBottom="5dp"
             android:text="100 단어"
             android:textSize="15sp"
+            android:textColor="@color/white"
             android:textAlignment="center"/>
 
         <TextView
@@ -52,6 +55,7 @@
             android:paddingTop="5dp"
             android:text="hoyaboi"
             android:textSize="15sp"
+            android:textColor="@color/white"
             android:textAlignment="center"/>
 
     </LinearLayout>

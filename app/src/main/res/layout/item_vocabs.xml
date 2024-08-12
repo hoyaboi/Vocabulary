@@ -11,7 +11,7 @@
     android:background="@drawable/border"
     android:clickable="true"
     android:focusable="true"
-    android:elevation="5dp">
+    android:elevation="2dp">
 
     <TextView
         android:id="@+id/vocab_name_text"
@@ -22,7 +22,7 @@
         android:paddingStart="40dp"
         android:text="A 단어장"
         android:textColor="@color/white"
-        android:textSize="27sp"/>
+        android:textSize="25sp"/>
 
     <View
         android:layout_width="1dp"

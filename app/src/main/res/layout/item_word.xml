@@ -9,13 +9,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <com.google.android.material.checkbox.MaterialCheckBox
+        <ImageView
             android:id="@+id/check_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_gravity="center_vertical"
-            android:buttonTint="@color/black"
-            android:background="@android:color/transparent"/>
+            android:layout_margin="15dp"
+            android:background="@drawable/checkbox_unchecked"/>
 
         <TextView
             android:id="@+id/eng_text"

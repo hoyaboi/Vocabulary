@@ -3,6 +3,8 @@ package com.example.dictionary.tab.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dictionary.R
@@ -12,7 +14,8 @@ import com.google.android.material.checkbox.MaterialCheckBox
 class WordAdapter(
     private val items: List<Word>,
     private val onCheckChanged: (Boolean) -> Unit,
-    private val isCheckBoxEnabled: Boolean = true // 기본값은 true, 필요시 비활성화
+    private val onAllItemsChecked: (Boolean) -> Unit,
+    private val isCheckBoxEnabled: Boolean = true
 ) : RecyclerView.Adapter<WordAdapter.WordViewHolder>() {
 
     private val selectedWords = mutableSetOf<Word>()
@@ -20,7 +23,7 @@ class WordAdapter(
     private val hiddenKoreanWords = mutableSetOf<String>()
 
     class WordViewHolder(wordView: View) : RecyclerView.ViewHolder(wordView) {
-        val checkBox: MaterialCheckBox = wordView.findViewById(R.id.check_btn)
+        val checkBox: ImageView = wordView.findViewById(R.id.check_btn)
         val engText: TextView = wordView.findViewById(R.id.eng_text)
         val korText: TextView = wordView.findViewById(R.id.kor_text)
     }
@@ -33,25 +36,25 @@ class WordAdapter(
     override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
         val word = items[position]
 
-        // 영어 텍스트 설정
         holder.engText.text = if (hiddenEnglishWords.contains(word.id)) "" else word.english
-        // 한국어 텍스트 설정
         holder.korText.text = if (hiddenKoreanWords.contains(word.id)) "" else word.korean
 
-        holder.checkBox.setOnCheckedChangeListener(null) // 리스너 초기화
-        holder.checkBox.isChecked = selectedWords.contains(word)
+        val isChecked = selectedWords.contains(word)
+        updateCheckBox(holder.checkBox, isChecked)
 
-        // 체크박스 클릭 가능 여부 설정
         holder.checkBox.isEnabled = isCheckBoxEnabled
 
         if (isCheckBoxEnabled) {
-            holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    selectedWords.add(word)
-                } else {
+            holder.checkBox.setOnClickListener {
+                val currentCheckedState = selectedWords.contains(word)
+                if (currentCheckedState) {
                     selectedWords.remove(word)
+                } else {
+                    selectedWords.add(word)
                 }
+                updateCheckBox(holder.checkBox, !currentCheckedState)
                 onCheckChanged(selectedWords.isNotEmpty())
+                onAllItemsChecked(selectedWords.size == items.size)
             }
 
             holder.engText.setOnClickListener {
@@ -78,20 +81,25 @@ class WordAdapter(
 
     override fun getItemCount(): Int = items.size
 
+    private fun updateCheckBox(checkBox: ImageView, isChecked: Boolean) {
+        checkBox.setImageResource(if (isChecked) R.drawable.checkbox_checked else R.drawable.checkbox_unchecked)
+    }
+
     fun getSelectedWords(): List<Word> = selectedWords.toList()
 
     fun clearSelection() {
         selectedWords.clear()
         notifyDataSetChanged()
+        onAllItemsChecked(false)
     }
 
     fun hideEnglishText() {
-        hiddenEnglishWords.addAll(items.map { it.id }) // 모든 영어 텍스트를 숨김
+        hiddenEnglishWords.addAll(items.map { it.id })
         notifyDataSetChanged()
     }
 
     fun hideKoreanText() {
-        hiddenKoreanWords.addAll(items.map { it.id }) // 모든 한국어 텍스트를 숨김
+        hiddenKoreanWords.addAll(items.map { it.id })
         notifyDataSetChanged()
     }
 
@@ -100,7 +108,15 @@ class WordAdapter(
         hiddenKoreanWords.clear()
         notifyDataSetChanged()
     }
+
+    fun selectAllItems(selectAll: Boolean) {
+        if (selectAll) {
+            selectedWords.addAll(items)
+        } else {
+            selectedWords.clear()
+        }
+        notifyDataSetChanged()
+        onAllItemsChecked(selectAll)
+    }
 }
-
-
 

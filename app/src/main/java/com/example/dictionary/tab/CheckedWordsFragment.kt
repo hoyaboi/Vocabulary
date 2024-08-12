@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +30,10 @@ class CheckedWordsFragment : Fragment() {
     private lateinit var hideEngButton: MaterialButton
     private lateinit var hideKorButton: MaterialButton
     private lateinit var resetButton: MaterialButton
+    private lateinit var noCheckedWordText: TextView
+    private lateinit var checkAllButton: ImageView
+
+    private var isAllChecked = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,6 +69,10 @@ class CheckedWordsFragment : Fragment() {
         resetButton.setOnClickListener {
             adapter.resetWords()
         }
+
+        checkAllButton.setOnClickListener {
+            toggleSelectAllItems()
+        }
     }
 
     private fun setupViews(view: View) {
@@ -71,6 +81,8 @@ class CheckedWordsFragment : Fragment() {
         hideEngButton = view.findViewById(R.id.hide_eng_btn)
         hideKorButton = view.findViewById(R.id.hide_kor_btn)
         resetButton = view.findViewById(R.id.reset_btn)
+        noCheckedWordText = view.findViewById(R.id.no_checked_word_text)
+        checkAllButton = view.findViewById(R.id.check_all_btn)
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
@@ -103,9 +115,10 @@ class CheckedWordsFragment : Fragment() {
         val selectedWords = adapter.getSelectedWords()
         val userId = auth.currentUser?.uid ?: return
 
+        checkAllButton.setImageResource(R.drawable.checkbox_unchecked)
+
         var updateCount = selectedWords.size
         selectedWords.forEach { word ->
-//            Log.d("selectedWords", "selectedWords: $word")
             database.updateWordToUnchecked(word.id, userId) {
                 updateCount--
                 if (updateCount == 0) {
@@ -121,16 +134,41 @@ class CheckedWordsFragment : Fragment() {
         val userId = auth.currentUser?.uid ?: return
 
         database.getCheckedWords(userId, requireContext()) { checkedWords ->
-            adapter = WordAdapter(checkedWords, onCheckChanged = { hasSelectedWords ->
-                toggleEditButtonsVisibility(hasSelectedWords)
-            }, isCheckBoxEnabled = true)
-            recyclerView.adapter = adapter
+            if (checkedWords.isEmpty()) {
+                noCheckedWordText.visibility = View.VISIBLE
+                recyclerView.adapter = null
+            } else {
+                noCheckedWordText.visibility = View.GONE
+                adapter = WordAdapter(
+                    checkedWords,
+                    onCheckChanged = { hasSelectedWords ->
+                        toggleEditButtonsVisibility(hasSelectedWords)
+                    },
+                    onAllItemsChecked = { allItemsChecked ->
+                        isAllChecked = allItemsChecked
+                        updateCheckAllButtonState()
+                    },
+                    isCheckBoxEnabled = true
+                )
+                recyclerView.adapter = adapter
+            }
+            uncheckButton.visibility = View.GONE
         }
     }
 
+    private fun toggleSelectAllItems() {
+        isAllChecked = !isAllChecked
+        adapter.selectAllItems(isAllChecked)
+        updateCheckAllButtonState()
+        toggleEditButtonsVisibility(isAllChecked)
+    }
 
-    override fun onResume() {
-        super.onResume()
-        refreshData()  // 화면이 다시 보일 때마다 데이터 갱신
+    private fun updateCheckAllButtonState() {
+        val allCheckedImage = if (isAllChecked) {
+            R.drawable.checkbox_checked
+        } else {
+            R.drawable.checkbox_unchecked
+        }
+        checkAllButton.setImageResource(allCheckedImage)
     }
 }

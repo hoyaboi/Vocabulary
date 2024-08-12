@@ -15,11 +15,15 @@
     <string name="input_vacab_name">단어장 이름을 입력하세요</string>
     <string name="hide_english">영어</string>
     <string name="hide_korean">한국어</string>
+    <string name="english">영어 단어</string>
+    <string name="korean">한국어 뜻</string>
     <string name="reset">초기화</string>
     <string name="delete">삭제</string>
     <string name="check">체크</string>
     <string name="uncheck">체크 해제</string>
     <string name="add_word">단어 추가</string>
+    <string name="no_vocab">추가된 단어장이 없습니다</string>
+    <string name="no_checked_word">체크된 단어가 없습니다</string>
 
     <!--  단어 추가  -->
     <string name="input_eng_word">영어 단어 입력</string>
@@ -38,6 +42,7 @@
     <string name="result_vocab">검색 결과</string>
     <string name="info_text">단어장을 검색해보세요</string>
     <string name="move_to_my_vocabs">내 단어장에 추가</string>
+    <string name="no_word">추가된 단어가 없습니다</string>
 
     <!--  개인 설정  -->
     <string name="sign_out">로그아웃</string>

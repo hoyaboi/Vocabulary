@@ -115,24 +115,33 @@ class Database {
         userReference.child(userId).child("vocabs").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val vocabList = mutableListOf<Vocab>()
-                val vocabIds = snapshot.children.map { it.key }
+                if (snapshot.exists()) {  // vocabs 노드가 존재하는지 확인
+                    val vocabIds = snapshot.children.map { it.key }
 
-                vocabIds.forEach { vocabId ->
-                    vocabReference.child(vocabId!!).addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            val vocab = snapshot.getValue(Vocab::class.java)
-                            if (vocab != null) {
-                                vocabList.add(vocab)
-                            }
-                            if (vocabList.size == vocabIds.size) {
-                                callback(vocabList)
-                            }
-                        }
+                    if (vocabIds.isEmpty()) {
+                        callback(vocabList)
+                    } else {
+                        vocabIds.forEach { vocabId ->
+                            vocabReference.child(vocabId!!).addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    val vocab = snapshot.getValue(Vocab::class.java)
+                                    if (vocab != null) {
+                                        vocabList.add(vocab)
+                                    }
+                                    if (vocabList.size == vocabIds.size) {
+                                        callback(vocabList)
+                                    }
+                                }
 
-                        override fun onCancelled(error: DatabaseError) {
-                            Toast.makeText(context, "단어장을 불러오는데 실패했습니다. 다시 시도하세요.", Toast.LENGTH_SHORT).show()
+                                override fun onCancelled(error: DatabaseError) {
+                                    Toast.makeText(context, "단어장을 불러오는데 실패했습니다. 다시 시도하세요.", Toast.LENGTH_SHORT).show()
+                                }
+                            })
                         }
-                    })
+                    }
+                } else {
+                    // vocabs 노드가 없으면 빈 리스트 반환
+                    callback(vocabList)
                 }
             }
 
@@ -141,6 +150,7 @@ class Database {
             }
         })
     }
+
 
     // 단어장에서 단어 불러오기
     fun getWordsFromVocab(userId: String, vocabId: String, context: Context, callback: (List<Word>) -> Unit) {
@@ -165,12 +175,15 @@ class Database {
     // 개인 DB 단어장에서 체크된 단어 불러오기
     fun getCheckedWords(userId: String, context: Context, callback: (List<Word>) -> Unit) {
         val userVocabsRef = userReference.child(userId).child("vocabs")
-        val checkedWordIds = mutableListOf<Pair<String, String>>() // (vocabId, wordId) 페어 리스트
-        val checkedWords = mutableListOf<Word>()
+        val checkedWordIds = mutableSetOf<Pair<String, String>>() // (vocabId, wordId) 페어 리스트
+        val checkedWords = mutableSetOf<Word>() // Set으로 중복 제거
 
         // 모든 vocabId와 해당 vocab에서 checked가 true인 wordId들을 수집
-        userVocabsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        userVocabsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                checkedWordIds.clear()
+                checkedWords.clear()
+
                 snapshot.children.forEach { vocabSnapshot ->
                     val vocabId = vocabSnapshot.key ?: return@forEach
                     val checkedRef = vocabSnapshot.child("checked")
@@ -198,7 +211,7 @@ class Database {
 
                                     // 모든 단어를 다 가져왔으면 callback 호출
                                     if (checkedWords.size == checkedWordIds.size) {
-                                        callback(checkedWords)
+                                        callback(checkedWords.toList())
                                     }
                                 }
 
@@ -209,7 +222,7 @@ class Database {
                     }
                 } else {
                     // 체크된 단어가 없을 경우
-                    callback(checkedWords)
+                    callback(checkedWords.toList())
                 }
             }
 
@@ -272,8 +285,8 @@ class Database {
 
                     val nameMatches = vocab.name.contains(vocabName, ignoreCase = true)
                     val creatorMatches = vocabCreator.isEmpty() || vocab.owner.contains(vocabCreator, ignoreCase = true)
-
-                    if (nameMatches && creatorMatches) {
+                    val vocabCount = vocab.words.size
+                    if (nameMatches && creatorMatches && vocabCount != 0) {
                         result.add(vocab)
                     }
                 }

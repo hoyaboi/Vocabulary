@@ -47,6 +47,55 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
+        android:id="@+id/word_guide_container"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/appbar_container"
+        android:background="@color/line_gray">
+
+        <ImageView
+            android:id="@+id/check_all_btn"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="15dp"
+            android:background="@drawable/checkbox_unchecked"/>
+
+        <TextView
+            android:id="@+id/english"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="5dp"
+            android:paddingEnd="5dp"
+            android:paddingBottom="5dp"
+            android:text="@string/english"
+            android:textSize="17sp"/>
+
+        <TextView
+            android:id="@+id/korean"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:text="@string/korean"
+            android:textSize="17sp"/>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/separator1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/word_guide_container"
+        android:background="@color/light_gray"/>
+
+    <LinearLayout
         android:id="@+id/edit_btn_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -88,11 +137,11 @@
         android:id="@+id/words_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/separator"
-        android:layout_below="@id/appbar_container"/>
+        android:layout_above="@id/separator2"
+        android:layout_below="@id/separator1"/>
 
     <View
-        android:id="@+id/separator"
+        android:id="@+id/separator2"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_above="@id/btn_container"
@@ -148,5 +197,15 @@
             app:rippleColor="@color/gray"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/no_word_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/no_word"
+        android:textSize="16sp"
+        android:textColor="@color/gray"
+        android:gravity="center"
+        android:visibility="gone"/>
 
 </RelativeLayout>

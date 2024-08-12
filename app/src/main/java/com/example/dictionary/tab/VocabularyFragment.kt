@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.marginBottom
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +32,7 @@ class VocabularyFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var recyclerView: RecyclerView
     private lateinit var addVocabButton: MaterialButton
+    private lateinit var noVocabText: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,17 +73,24 @@ class VocabularyFragment : Fragment() {
     private fun setupViews(view: View) {
         recyclerView = view.findViewById(R.id.vocab_list)
         addVocabButton = view.findViewById(R.id.add_vocab_btn)
+        noVocabText = view.findViewById(R.id.no_vocab_text)
     }
 
     private fun refreshData() {
         val userId = auth.currentUser?.uid ?: return
         database.getVocabsForUser(userId, requireContext()) { vocabList ->
-            adapter = VocabAdapter(
-                vocabList,
-                { vocab -> openVocab(vocab) }, // 단어장 클릭 이벤트 처리
-                { vocab -> showDeleteVocabDialog(vocab) } // 단어장 길게 클릭 이벤트 처리
-            )
-            recyclerView.adapter = adapter
+            if (vocabList.isEmpty()) {
+                noVocabText.visibility = View.VISIBLE
+                recyclerView.adapter = null
+            } else {
+                noVocabText.visibility = View.GONE
+                adapter = VocabAdapter(
+                    vocabList,
+                    { vocab -> openVocab(vocab) }, // 단어장 클릭 이벤트 처리
+                    { vocab -> showDeleteVocabDialog(vocab) } // 단어장 길게 클릭 이벤트 처리
+                )
+                recyclerView.adapter = adapter
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.example.dictionary
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,7 @@ class ShowVocabActivity : AppCompatActivity() {
     private lateinit var toolbar: MaterialToolbar
     private lateinit var recyclerView: RecyclerView
     private lateinit var addButton: MaterialButton
+    private lateinit var noWordText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,14 +59,21 @@ class ShowVocabActivity : AppCompatActivity() {
         addButton = findViewById(R.id.add_btn)
         recyclerView = findViewById(R.id.words_list)
         recyclerView.layoutManager = LinearLayoutManager(this)
+        noWordText = findViewById(R.id.no_word_text)
     }
 
     private fun loadWords() {
         val userId = auth.currentUser?.uid ?: return
 
         database.getWordsFromVocab(userId, vocabId, this) { wordList ->
-            adapter = WordAdapter(wordList, onCheckChanged = {}, isCheckBoxEnabled = false)
-            recyclerView.adapter = adapter
+            if (wordList.isEmpty()) {
+                noWordText.visibility = View.VISIBLE
+                recyclerView.adapter = null
+            } else {
+                noWordText.visibility = View.GONE
+                adapter = WordAdapter(wordList, {}, {}, isCheckBoxEnabled = false)
+                recyclerView.adapter = adapter
+            }
         }
     }
 

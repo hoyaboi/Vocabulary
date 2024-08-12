@@ -4,7 +4,9 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -37,6 +39,10 @@ class WordsActivity : AppCompatActivity() {
     private lateinit var hideEngButton: MaterialButton
     private lateinit var hideKorButton: MaterialButton
     private lateinit var resetButton: MaterialButton
+    private lateinit var noWordText: TextView
+    private lateinit var checkAllButton: ImageView
+
+    private var isAllChecked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +86,10 @@ class WordsActivity : AppCompatActivity() {
         resetButton.setOnClickListener {
             adapter.resetWords()
         }
+
+        checkAllButton.setOnClickListener {
+            toggleSelectAllItems()
+        }
     }
 
     private fun setupViews() {
@@ -93,6 +103,8 @@ class WordsActivity : AppCompatActivity() {
         hideEngButton = findViewById(R.id.hide_eng_btn)
         hideKorButton = findViewById(R.id.hide_kor_btn)
         resetButton = findViewById(R.id.reset_btn)
+        noWordText = findViewById(R.id.no_word_text)
+        checkAllButton = findViewById(R.id.check_all_btn)
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
@@ -181,10 +193,10 @@ class WordsActivity : AppCompatActivity() {
                 Toast.makeText(this, "영어 단어와 한글 뜻을 입력하세요.", Toast.LENGTH_SHORT).show()
             }
         }
-        .setTitle("단어 추가")
-        .setNegativeButton("취소", null)
-        .create()
-        .show()
+            .setTitle("단어 추가")
+            .setNegativeButton("취소", null)
+            .create()
+            .show()
     }
 
     private fun saveWord(word: Word) {
@@ -204,11 +216,40 @@ class WordsActivity : AppCompatActivity() {
         val userId = auth.currentUser?.uid ?: return
 
         database.getWordsFromVocab(userId, vocabId, this) { wordList ->
-            adapter = WordAdapter(wordList, onCheckChanged = { hasSelectedWords ->
-                toggleEditButtonsVisibility(hasSelectedWords)
-            }, isCheckBoxEnabled = true)
-            recyclerView.adapter = adapter
+            if (wordList.isEmpty()) {
+                noWordText.visibility = View.VISIBLE
+                recyclerView.adapter = null
+            } else {
+                noWordText.visibility = View.GONE
+                adapter = WordAdapter(
+                    wordList,
+                    onCheckChanged = { hasSelectedWords ->
+                        toggleEditButtonsVisibility(hasSelectedWords)
+                    },
+                    onAllItemsChecked = { allItemsChecked ->
+                        isAllChecked = allItemsChecked
+                        updateCheckAllButtonState()
+                    },
+                    isCheckBoxEnabled = true
+                )
+                recyclerView.adapter = adapter
+            }
         }
     }
-}
 
+    private fun toggleSelectAllItems() {
+        isAllChecked = !isAllChecked
+        adapter.selectAllItems(isAllChecked)
+        updateCheckAllButtonState()
+        toggleEditButtonsVisibility(isAllChecked)
+    }
+
+    private fun updateCheckAllButtonState() {
+        val allCheckedImage = if (isAllChecked) {
+            R.drawable.checkbox_checked
+        } else {
+            R.drawable.checkbox_unchecked
+        }
+        checkAllButton.setImageResource(allCheckedImage)
+    }
+}

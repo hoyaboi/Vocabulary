@@ -10,4 +10,5 @@
     <style name="CustomTabTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="android:textColor">@color/tab_selector</item>
     </style>
+
 </resources>

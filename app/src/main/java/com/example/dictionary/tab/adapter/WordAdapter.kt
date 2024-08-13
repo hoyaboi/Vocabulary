@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -23,7 +24,8 @@ class WordAdapter(
     private val hiddenKoreanWords = mutableSetOf<String>()
 
     class WordViewHolder(wordView: View) : RecyclerView.ViewHolder(wordView) {
-        val checkBox: ImageView = wordView.findViewById(R.id.check_btn)
+        val checkBox: FrameLayout = wordView.findViewById(R.id.check_btn)
+        val checkBoxImage: ImageView = wordView.findViewById(R.id.check_btn_image)
         val engText: TextView = wordView.findViewById(R.id.eng_text)
         val korText: TextView = wordView.findViewById(R.id.kor_text)
     }
@@ -40,7 +42,7 @@ class WordAdapter(
         holder.korText.text = if (hiddenKoreanWords.contains(word.id)) "" else word.korean
 
         val isChecked = selectedWords.contains(word)
-        updateCheckBox(holder.checkBox, isChecked)
+        updateCheckBox(holder.checkBoxImage, isChecked)
 
         holder.checkBox.isEnabled = isCheckBoxEnabled
 
@@ -52,7 +54,7 @@ class WordAdapter(
                 } else {
                     selectedWords.add(word)
                 }
-                updateCheckBox(holder.checkBox, !currentCheckedState)
+                updateCheckBox(holder.checkBoxImage, !currentCheckedState)
                 onCheckChanged(selectedWords.isNotEmpty())
                 onAllItemsChecked(selectedWords.size == items.size)
             }

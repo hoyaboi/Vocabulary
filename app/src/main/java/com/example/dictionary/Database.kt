@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.Firebase
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -30,6 +32,7 @@ data class Vocab(
 )
 
 class Database {
+    private val auth = FirebaseAuth.getInstance()
     private val database = Firebase.database
     private val userReference = database.getReference("users")
     private val vocabReference = database.getReference("vocabs")
@@ -176,12 +179,13 @@ class Database {
         val userVocabsRef = userReference.child(userId).child("vocabs")
         val checkedWordIds = mutableSetOf<Pair<String, String>>() // (vocabId, wordId) 페어 리스트
         val checkedWords = mutableSetOf<Word>() // Set으로 중복 제거
+        var totalCheckedItems = 0 // 체크된 단어 총 개수
 
-        // 모든 vocabId와 해당 vocab에서 checked가 true인 wordId들을 수집
         userVocabsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 checkedWordIds.clear()
                 checkedWords.clear()
+                totalCheckedItems = 0
 
                 snapshot.children.forEach { vocabSnapshot ->
                     val vocabId = vocabSnapshot.key ?: return@forEach
@@ -197,7 +201,8 @@ class Database {
                     }
                 }
 
-                // 수집된 wordId에 대해 해당 단어를 vocabs에서 가져옴
+                totalCheckedItems = checkedWordIds.size
+
                 if (checkedWordIds.isNotEmpty()) {
                     checkedWordIds.forEach { (vocabId, wordId) ->
                         vocabReference.child(vocabId).child("words").child(wordId)
@@ -206,10 +211,15 @@ class Database {
                                     val word = wordSnapshot.getValue(Word::class.java)
                                     if (word != null) {
                                         checkedWords.add(word)
+                                    } else {
+                                        // 단어가 존재하지 않을 경우, 체크 상태를 제거
+                                        userReference.child(userId).child("vocabs")
+                                            .child(vocabId).child("checked").child(wordId)
+                                            .removeValue()
                                     }
 
-                                    // 모든 단어를 다 가져왔으면 callback 호출
-                                    if (checkedWords.size == checkedWordIds.size) {
+                                    // 모든 단어를 다 가져왔거나 삭제한 경우 callback 호출
+                                    if (checkedWords.size + (totalCheckedItems - checkedWords.size) == totalCheckedItems) {
                                         callback(checkedWords.toList())
                                     }
                                 }
@@ -220,8 +230,7 @@ class Database {
                             })
                     }
                 } else {
-                    // 체크된 단어가 없을 경우
-                    callback(checkedWords.toList())
+                    callback(checkedWords.toList()) // 체크된 단어가 없을 경우
                 }
             }
 
@@ -230,6 +239,7 @@ class Database {
             }
         })
     }
+
 
     // 개인 DB 단어장에 단어 체크
     fun updateWordToChecked(wordId: String, vocabId: String, userId: String) {
@@ -385,6 +395,35 @@ class Database {
     fun deleteUserData(userId: String, callback: (Boolean) -> Unit) {
         userReference.child(userId).removeValue().addOnCompleteListener { task ->
             callback(task.isSuccessful)
+        }
+    }
+
+    // 이름 변경 함수
+    fun changeUserName(userId: String, newName: String, callback: (Boolean) -> Unit) {
+        userReference.child(userId).child("name").setValue(newName)
+            .addOnCompleteListener { task ->
+                callback(task.isSuccessful)
+            }
+    }
+
+    // 비밀번호 변경 함수
+    fun changeUserPassword(currentPassword: String, newPassword: String, callback: (Boolean) -> Unit) {
+        val user = auth.currentUser ?: return callback(false)
+
+        // 현재 사용자의 이메일 가져오기
+        val email = user.email ?: return callback(false)
+
+        // 현재 비밀번호로 재인증
+        val credential = EmailAuthProvider.getCredential(email, currentPassword)
+        user.reauthenticate(credential).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // 비밀번호 변경
+                user.updatePassword(newPassword).addOnCompleteListener { updateTask ->
+                    callback(updateTask.isSuccessful)
+                }
+            } else {
+                callback(false)
+            }
         }
     }
 }

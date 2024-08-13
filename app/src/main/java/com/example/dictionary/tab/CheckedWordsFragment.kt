@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -31,7 +32,8 @@ class CheckedWordsFragment : Fragment() {
     private lateinit var hideKorButton: MaterialButton
     private lateinit var resetButton: MaterialButton
     private lateinit var noCheckedWordText: TextView
-    private lateinit var checkAllButton: ImageView
+    private lateinit var checkAllButton: FrameLayout
+    private lateinit var checkAllButtonImageView: ImageView
 
     private var isAllChecked = false
 
@@ -85,6 +87,7 @@ class CheckedWordsFragment : Fragment() {
         resetButton = view.findViewById(R.id.reset_btn)
         noCheckedWordText = view.findViewById(R.id.no_checked_word_text)
         checkAllButton = view.findViewById(R.id.check_all_btn)
+        checkAllButtonImageView = view.findViewById(R.id.check_all_btn_image)
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
@@ -117,7 +120,7 @@ class CheckedWordsFragment : Fragment() {
         val selectedWords = adapter.getSelectedWords()
         val userId = auth.currentUser?.uid ?: return
 
-        checkAllButton.setImageResource(R.drawable.checkbox_unchecked)
+        checkAllButtonImageView.setImageResource(R.drawable.checkbox_unchecked)
 
         var updateCount = selectedWords.size
         selectedWords.forEach { word ->
@@ -138,7 +141,7 @@ class CheckedWordsFragment : Fragment() {
         database.getCheckedWords(userId, requireContext()) { checkedWords ->
             if (checkedWords.isEmpty()) {
                 noCheckedWordText.visibility = View.VISIBLE
-                recyclerView.adapter = null
+                clearAdapter()
             } else {
                 noCheckedWordText.visibility = View.GONE
                 adapter = WordAdapter(
@@ -153,9 +156,29 @@ class CheckedWordsFragment : Fragment() {
                     isCheckBoxEnabled = true
                 )
                 recyclerView.adapter = adapter
+                enableCheckAllButton()
             }
-            uncheckButton.visibility = View.GONE
         }
+    }
+
+    private fun clearAdapter() {
+        adapter = WordAdapter(
+            emptyList(),  // 빈 목록을 가진 어댑터로 초기화
+            onCheckChanged = { toggleEditButtonsVisibility(false) },
+            onAllItemsChecked = { isAllChecked = false },
+            isCheckBoxEnabled = false
+        )
+        recyclerView.adapter = adapter
+        disableCheckAllButton()
+    }
+
+    private fun disableCheckAllButton() {
+        checkAllButton.isEnabled = false
+        checkAllButtonImageView.setImageResource(R.drawable.checkbox_unchecked)
+    }
+
+    private fun enableCheckAllButton() {
+        checkAllButton.isEnabled = true
     }
 
     private fun toggleSelectAllItems() {
@@ -171,6 +194,6 @@ class CheckedWordsFragment : Fragment() {
         } else {
             R.drawable.checkbox_unchecked
         }
-        checkAllButton.setImageResource(allCheckedImage)
+        checkAllButtonImageView.setImageResource(allCheckedImage)
     }
 }

@@ -70,7 +70,7 @@ class SignInActivity : AppCompatActivity() {
                 if(task.isSuccessful) {
                     startActivity(Intent(this, MainActivity::class.java))
                 } else {
-                    Toast.makeText(this, "잘못된 로그인 정보입니다", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "사용자 정보가 일치하지 않습니다", Toast.LENGTH_SHORT).show()
                 }
             }
         } else {

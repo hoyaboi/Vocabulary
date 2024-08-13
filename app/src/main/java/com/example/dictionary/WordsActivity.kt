@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -40,7 +41,8 @@ class WordsActivity : AppCompatActivity() {
     private lateinit var hideKorButton: MaterialButton
     private lateinit var resetButton: MaterialButton
     private lateinit var noWordText: TextView
-    private lateinit var checkAllButton: ImageView
+    private lateinit var checkAllButton: FrameLayout
+    private lateinit var checkAllButtonImageView: ImageView
 
     private var isAllChecked = false
 
@@ -107,6 +109,7 @@ class WordsActivity : AppCompatActivity() {
         resetButton = findViewById(R.id.reset_btn)
         noWordText = findViewById(R.id.no_word_text)
         checkAllButton = findViewById(R.id.check_all_btn)
+        checkAllButtonImageView = findViewById(R.id.check_all_btn_image)
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
@@ -220,7 +223,7 @@ class WordsActivity : AppCompatActivity() {
         database.getWordsFromVocab(userId, vocabId, this) { wordList ->
             if (wordList.isEmpty()) {
                 noWordText.visibility = View.VISIBLE
-                recyclerView.adapter = null
+                clearAdapter()
             } else {
                 noWordText.visibility = View.GONE
                 adapter = WordAdapter(
@@ -235,8 +238,29 @@ class WordsActivity : AppCompatActivity() {
                     isCheckBoxEnabled = true
                 )
                 recyclerView.adapter = adapter
+                enableCheckAllButton()
             }
         }
+    }
+
+    private fun clearAdapter() {
+        adapter = WordAdapter(
+            emptyList(),  // 빈 목록을 가진 어댑터로 초기화
+            onCheckChanged = { toggleEditButtonsVisibility(false) },
+            onAllItemsChecked = { isAllChecked = false },
+            isCheckBoxEnabled = false
+        )
+        recyclerView.adapter = adapter
+        disableCheckAllButton()
+    }
+
+    private fun disableCheckAllButton() {
+        checkAllButton.isEnabled = false
+        checkAllButtonImageView.setImageResource(R.drawable.checkbox_unchecked)
+    }
+
+    private fun enableCheckAllButton() {
+        checkAllButton.isEnabled = true
     }
 
     private fun toggleSelectAllItems() {
@@ -252,6 +276,6 @@ class WordsActivity : AppCompatActivity() {
         } else {
             R.drawable.checkbox_unchecked
         }
-        checkAllButton.setImageResource(allCheckedImage)
+        checkAllButtonImageView.setImageResource(allCheckedImage)
     }
 }

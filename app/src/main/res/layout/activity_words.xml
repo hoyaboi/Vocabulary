@@ -54,13 +54,20 @@
         android:layout_below="@id/appbar_container"
         android:background="@color/line_gray">
 
-        <ImageView
+        <FrameLayout
             android:id="@+id/check_all_btn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="15dp"
-            android:background="@drawable/checkbox_unchecked"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/check_all_btn_image"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:layout_margin="15dp"
+                android:background="@drawable/checkbox_unchecked"/>
+
+        </FrameLayout>
 
         <TextView
             android:id="@+id/english"

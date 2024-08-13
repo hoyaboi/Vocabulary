@@ -34,6 +34,9 @@ class MainActivity : AppCompatActivity() {
                 3 -> tab.text = "설정"
             }
         }.attach()
+
+        // 모든 탭의 프래그먼트 한 번에 로드
+        viewPager.offscreenPageLimit = 3
     }
 
     private fun setupViews() {

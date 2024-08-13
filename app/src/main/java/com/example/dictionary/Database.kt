@@ -151,7 +151,6 @@ class Database {
         })
     }
 
-
     // 단어장에서 단어 불러오기
     fun getWordsFromVocab(userId: String, vocabId: String, context: Context, callback: (List<Word>) -> Unit) {
         vocabReference.child(vocabId).child("words").addValueEventListener(object : ValueEventListener {
@@ -323,6 +322,7 @@ class Database {
         })
     }
 
+    // 이미 추가된 단어장인지 검사
     fun isVocabAlreadyAdded(vocabId: String, userId: String, callback: (Boolean) -> Unit) {
         userReference.child(userId).child("vocabs").child(vocabId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -333,5 +333,58 @@ class Database {
                 callback(false) // 에러 발생 시에도 false 반환
             }
         })
+    }
+
+    // 사용자 이름 가져오기
+    fun getUserName(userId: String, callback: (String) -> Unit) {
+        userReference.child(userId).child("name").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val name = snapshot.getValue(String::class.java) ?: "Unknown"
+                callback(name)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback("Unknown")
+            }
+        })
+    }
+
+    // 특정 단어장에서 체크된 단어 개수 가져오기
+    fun getCheckedWordsInVocab(userId: String, vocabId: String, callback: (List<Word>) -> Unit) {
+        userReference.child(userId).child("vocabs").child(vocabId).child("checked")
+            .orderByValue().equalTo(true).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val checkedWords = mutableListOf<Word>()
+                    snapshot.children.forEach { wordSnapshot ->
+                        val wordId = wordSnapshot.key ?: return@forEach
+                        vocabReference.child(vocabId).child("words").child(wordId)
+                            .addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(wordSnap: DataSnapshot) {
+                                    val word = wordSnap.getValue(Word::class.java)
+                                    if (word != null) {
+                                        checkedWords.add(word)
+                                    }
+                                    if (checkedWords.size == snapshot.childrenCount.toInt()) {
+                                        callback(checkedWords)
+                                    }
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {}
+                            })
+                    }
+                    if (checkedWords.isEmpty()) {
+                        callback(emptyList())
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
+    // 사용자 데이터 삭제
+    fun deleteUserData(userId: String, callback: (Boolean) -> Unit) {
+        userReference.child(userId).removeValue().addOnCompleteListener { task ->
+            callback(task.isSuccessful)
+        }
     }
 }

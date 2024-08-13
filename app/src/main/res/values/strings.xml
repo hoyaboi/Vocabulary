@@ -45,5 +45,15 @@
     <string name="no_word">추가된 단어가 없습니다</string>
 
     <!--  개인 설정  -->
+    <string name="my_info">내 정보</string>
+    <string name="added_word">추가한 단어</string>
+    <string name="checked_word">체크된 단어</string>
+    <string name="setting">설정</string>
     <string name="sign_out">로그아웃</string>
+    <string name="personal_setting">개인 설정</string>
+    <string name="change_name">이름 변경</string>
+    <string name="change_pwd">비밀번호 변경</string>
+    <string name="remove_add">광고 제거</string>
+    <string name="delete_account">탈퇴하기</string>
+    <string name="version">버전 2.0.2a</string>
 </resources>

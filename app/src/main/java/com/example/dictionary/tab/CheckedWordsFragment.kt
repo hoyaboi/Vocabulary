@@ -71,7 +71,9 @@ class CheckedWordsFragment : Fragment() {
         }
 
         checkAllButton.setOnClickListener {
-            toggleSelectAllItems()
+            if (::adapter.isInitialized && adapter.itemCount > 0) {
+                toggleSelectAllItems()
+            }
         }
     }
 

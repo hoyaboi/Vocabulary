@@ -1,6 +1,6 @@
 <resources>
     <!--  로그인  -->
-    <string name="app_name">Vocabulary</string>
+    <string name="app_name">알파보카</string>
     <string name="sign_in">로그인</string>
     <string name="sign_up">회원가입</string>
     <string name="email">이메일</string>
@@ -58,5 +58,5 @@
     <string name="check_new_pwd">새 비밀번호 확인</string>
     <string name="remove_add">광고 제거</string>
     <string name="delete_account">탈퇴하기</string>
-    <string name="version">버전 2.0.3</string>
+    <string name="version">버전 2.0.4a</string>
 </resources>

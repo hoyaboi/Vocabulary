@@ -5,15 +5,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.dictionary"
+    namespace = "hoya.studio.vocabulary"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.dictionary"
+        applicationId = "hoya.studio.vocabulary"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.0.2a"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

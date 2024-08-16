@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import hoya.studio.vocabulary.tab.adapter.WordAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
@@ -28,6 +31,7 @@ class WordsActivity : AppCompatActivity() {
     private lateinit var vocabId: String
     private lateinit var vocabName: String
 
+    private lateinit var adView: AdView
     private lateinit var toolbar: MaterialToolbar
     private lateinit var addWordButton: MaterialButton
     private lateinit var recyclerView: RecyclerView
@@ -54,6 +58,11 @@ class WordsActivity : AppCompatActivity() {
         vocabName = intent.getStringExtra("vocabName") ?: throw IllegalStateException("vocabName이 전달되지 않았습니다.")
 
         setupViews()
+
+        // ad 로드
+        MobileAds.initialize(this)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -94,6 +103,7 @@ class WordsActivity : AppCompatActivity() {
     }
 
     private fun setupViews() {
+        adView = findViewById(R.id.ad_view)
         toolbar = findViewById(R.id.toolbar)
         toolbar.title = vocabName
         addWordButton = findViewById(R.id.add_word_btn)

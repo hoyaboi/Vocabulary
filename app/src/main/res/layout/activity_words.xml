@@ -158,9 +158,9 @@
         android:id="@+id/btn_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/ad_view"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:background="@color/line_gray">
 
@@ -214,5 +214,13 @@
         android:textColor="@color/gray"
         android:gravity="center"
         android:visibility="gone"/>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/ad_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:adSize="BANNER"
+        app:adUnitId="@string/banner_ad_unit_id_for_test"/>
 
 </RelativeLayout>

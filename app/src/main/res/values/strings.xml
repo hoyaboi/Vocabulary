@@ -59,4 +59,10 @@
     <string name="remove_add">광고 제거</string>
     <string name="delete_account">탈퇴하기</string>
     <string name="version">버전 2.0.4a</string>
+
+
+    <!--  애드몹 아이디  -->
+    <string name="admob_app_id">ca-app-pub-6312729833573027~5328976275</string>
+    <string name="banner_ad_unit_id">ca-app-pub-6312729833573027/8314232267</string>
+    <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
 </resources>

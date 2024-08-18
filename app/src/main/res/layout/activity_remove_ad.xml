@@ -26,18 +26,38 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/appbar_container"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:text="@string/product_list_text"
+        android:textSize="19sp"
+        android:gravity="center_vertical"
+        android:background="@color/line_gray"/>
+
+    <View
+        android:id="@+id/separator1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/text_view"
+        android:background="@color/light_gray"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/appbar_container"
-        android:gravity="center"
+        android:layout_below="@id/separator1"
         android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/remove_ad_subs"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:layout_margin="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:background="@drawable/border"
@@ -52,8 +72,9 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:paddingStart="20dp"
                     android:paddingEnd="15dp"
                     android:text="@string/remove_ad_subs_text"
@@ -64,6 +85,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
                     android:text="@string/remove_ad_subs_price"
                     android:textColor="@color/black"
                     android:textStyle="bold"
@@ -85,7 +107,9 @@
             android:id="@+id/remove_ad_one_price"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:layout_margin="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:background="@drawable/border"
@@ -100,8 +124,9 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:paddingStart="20dp"
                     android:paddingEnd="15dp"
                     android:text="@string/remove_ad_one_time_text"
@@ -119,6 +144,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
                     android:text="@string/remove_ad_one_price_sale"
                     android:textColor="@color/black"
                     android:textStyle="bold"
@@ -140,7 +166,9 @@
             android:id="@+id/remove_ad_free"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:layout_margin="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:background="@drawable/border"

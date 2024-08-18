@@ -1,6 +1,8 @@
 <resources>
-    <!--  로그인  -->
     <string name="app_name">알파보카</string>
+    <string name="app_name_eng">Alpha Vocab</string>
+
+    <!--  로그인  -->
     <string name="sign_in">로그인</string>
     <string name="sign_up">회원가입</string>
     <string name="email">이메일</string>
@@ -61,6 +63,7 @@
     <string name="version">버전 2.0.7a</string>
     
     <!--  광고 제거  -->
+    <string name="product_list_text">상품</string>
     <string name="remove_ad_subs_text">정기 결제</string>
     <string name="remove_ad_subs_price">990원/월</string>
     <string name="remove_ad_subs_desc">월 990원으로 광고를 제거합니다</string>

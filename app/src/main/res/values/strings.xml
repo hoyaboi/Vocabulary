@@ -60,6 +60,10 @@
     <string name="delete_account">탈퇴하기</string>
     <string name="version">버전 2.0.4a</string>
 
+    <!--  로딩 텍스트  -->
+    <string name="loading_vacabs">단어장 불러오는 중..</string>
+    <string name="loading_words">단어 불러오는 중..</string>
+    <string name="searching_vacabs">단어장 검색 중..</string>
 
     <!--  애드몹 아이디  -->
     <string name="admob_app_id">ca-app-pub-6312729833573027~5328976275</string>

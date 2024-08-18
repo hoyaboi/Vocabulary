@@ -2,6 +2,7 @@ package hoya.studio.vocabulary
 
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,7 @@ class ShowVocabActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var addButton: MaterialButton
     private lateinit var noWordText: TextView
+    private lateinit var loadingContainer: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,12 +58,15 @@ class ShowVocabActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.words_list)
         recyclerView.layoutManager = LinearLayoutManager(this)
         noWordText = findViewById(R.id.no_word_text)
+        loadingContainer = findViewById(R.id.loading_container)
     }
 
     private fun loadWords() {
         val userId = auth.currentUser?.uid ?: return
 
+        showLoading(true)
         database.getWordsFromVocab(userId, vocabId, this) { wordList ->
+            showLoading(false)
             if (wordList.isEmpty()) {
                 noWordText.visibility = View.VISIBLE
                 recyclerView.adapter = null
@@ -70,6 +75,17 @@ class ShowVocabActivity : AppCompatActivity() {
                 adapter = WordAdapter(wordList, {}, {}, isCheckBoxEnabled = false)
                 recyclerView.adapter = adapter
             }
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            loadingContainer.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+            noWordText.visibility = View.GONE
+        } else {
+            loadingContainer.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
         }
     }
 

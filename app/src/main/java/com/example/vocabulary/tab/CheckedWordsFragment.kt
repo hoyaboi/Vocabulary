@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +33,7 @@ class CheckedWordsFragment : Fragment() {
     private lateinit var noCheckedWordText: TextView
     private lateinit var checkAllButton: FrameLayout
     private lateinit var checkAllButtonImageView: ImageView
+    private lateinit var loadingContainer: LinearLayout
 
     private var isAllChecked = false
 
@@ -86,6 +88,7 @@ class CheckedWordsFragment : Fragment() {
         noCheckedWordText = view.findViewById(R.id.no_checked_word_text)
         checkAllButton = view.findViewById(R.id.check_all_btn)
         checkAllButtonImageView = view.findViewById(R.id.check_all_btn_image)
+        loadingContainer = view.findViewById(R.id.loading_container)
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
@@ -136,7 +139,9 @@ class CheckedWordsFragment : Fragment() {
     private fun refreshData() {
         val userId = auth.currentUser?.uid ?: return
 
+        showLoading(true)
         database.getCheckedWords(userId, requireContext()) { checkedWords ->
+            showLoading(false)
             if (checkedWords.isEmpty()) {
                 noCheckedWordText.visibility = View.VISIBLE
                 clearAdapter()
@@ -156,6 +161,17 @@ class CheckedWordsFragment : Fragment() {
                 recyclerView.adapter = adapter
                 enableCheckAllButton()
             }
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            loadingContainer.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+            noCheckedWordText.visibility = View.GONE
+        } else {
+            loadingContainer.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
         }
     }
 

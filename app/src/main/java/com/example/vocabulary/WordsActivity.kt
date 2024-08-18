@@ -44,6 +44,7 @@ class WordsActivity : AppCompatActivity() {
     private lateinit var noWordText: TextView
     private lateinit var checkAllButton: FrameLayout
     private lateinit var checkAllButtonImageView: ImageView
+    private lateinit var loadingContainer: LinearLayout
 
     private var isAllChecked = false
 
@@ -117,6 +118,7 @@ class WordsActivity : AppCompatActivity() {
         noWordText = findViewById(R.id.no_word_text)
         checkAllButton = findViewById(R.id.check_all_btn)
         checkAllButtonImageView = findViewById(R.id.check_all_btn_image)
+        loadingContainer = findViewById(R.id.loading_container)
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
@@ -227,7 +229,11 @@ class WordsActivity : AppCompatActivity() {
     private fun refreshData() {
         val userId = auth.currentUser?.uid ?: return
 
+        showLoading(true)
+
         database.getWordsFromVocab(userId, vocabId, this) { wordList ->
+            showLoading(false)
+
             if (wordList.isEmpty()) {
                 noWordText.visibility = View.VISIBLE
                 clearAdapter()
@@ -247,6 +253,17 @@ class WordsActivity : AppCompatActivity() {
                 recyclerView.adapter = adapter
                 enableCheckAllButton()
             }
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            loadingContainer.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+            noWordText.visibility = View.GONE
+        } else {
+            loadingContainer.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.marginBottom
@@ -29,6 +30,7 @@ class VocabularyFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var addVocabButton: MaterialButton
     private lateinit var noVocabText: TextView
+    private lateinit var loadingContainer: LinearLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,11 +72,18 @@ class VocabularyFragment : Fragment() {
         recyclerView = view.findViewById(R.id.vocab_list)
         addVocabButton = view.findViewById(R.id.add_vocab_btn)
         noVocabText = view.findViewById(R.id.no_vocab_text)
+        loadingContainer = view.findViewById(R.id.loading_container)
     }
 
     private fun refreshData() {
+        // 로딩 시작
+        showLoading(true)
+
         val userId = auth.currentUser?.uid ?: return
         database.getVocabsForUser(userId, requireContext()) { vocabList ->
+            // 로딩 완료
+            showLoading(false)
+
             if (vocabList.isEmpty()) {
                 noVocabText.visibility = View.VISIBLE
                 recyclerView.adapter = null
@@ -87,6 +96,17 @@ class VocabularyFragment : Fragment() {
                 )
                 recyclerView.adapter = adapter
             }
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            loadingContainer.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+            noVocabText.visibility = View.GONE
+        } else {
+            loadingContainer.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
         }
     }
 

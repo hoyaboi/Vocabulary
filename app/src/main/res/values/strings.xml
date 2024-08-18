@@ -56,10 +56,21 @@
     <string name="origin_pwd">기존 비밀번호</string>
     <string name="new_pwd">새 비밀번호</string>
     <string name="check_new_pwd">새 비밀번호 확인</string>
-    <string name="remove_add">광고 제거</string>
+    <string name="remove_ad">광고 제거</string>
     <string name="delete_account">탈퇴하기</string>
-    <string name="version">버전 2.0.4a</string>
-
+    <string name="version">버전 2.0.7a</string>
+    
+    <!--  광고 제거  -->
+    <string name="remove_ad_subs_text">정기 결제</string>
+    <string name="remove_ad_subs_price">990원/월</string>
+    <string name="remove_ad_subs_desc">월 990원으로 광고를 제거합니다</string>
+    <string name="remove_ad_one_time_text">연간 결제</string>
+    <string name="remove_ad_one_price_org">11,880원</string>
+    <string name="remove_ad_one_price_sale">8,900원</string>
+    <string name="remove_ad_one_price_desc">일년에 한 번 결제로 정기 결제보다 25% 저렴하게 광고를 제거합니다</string>
+    <string name="remove_ad_free_text">무료 광고 제거</string>
+    <string name="remove_ad_free_desc">광고를 시청하고 하루 동안 배너 광고를 제거할 수 있습니다</string>
+    
     <!--  로딩 텍스트  -->
     <string name="loading_vacabs">단어장 불러오는 중..</string>
     <string name="loading_words">단어 불러오는 중..</string>

@@ -14,6 +14,7 @@ import hoya.studio.vocabulary.R
 import hoya.studio.vocabulary.SignInActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
+import hoya.studio.vocabulary.RemoveAd
 
 class SettingsFragment : Fragment() {
 
@@ -23,7 +24,7 @@ class SettingsFragment : Fragment() {
     private lateinit var nameText: TextView
     private lateinit var wordCountText: TextView
     private lateinit var checkedCountText: TextView
-    private lateinit var removeAddText: TextView
+    private lateinit var removeAdText: TextView
     private lateinit var changeNameText: TextView
     private lateinit var changePwdText: TextView
     private lateinit var signOutText: TextView
@@ -46,7 +47,7 @@ class SettingsFragment : Fragment() {
 
         setPersonalInfo()
 
-        removeAddText.setOnClickListener {
+        removeAdText.setOnClickListener {
             removeAdd()
         }
 
@@ -73,7 +74,7 @@ class SettingsFragment : Fragment() {
         checkedCountText = view.findViewById(R.id.checked_word_count_text)
         changeNameText = view.findViewById(R.id.change_name_text)
         changePwdText = view.findViewById(R.id.change_pwd_text)
-        removeAddText = view.findViewById(R.id.remove_add_text)
+        removeAdText = view.findViewById(R.id.remove_ad_text)
         signOutText = view.findViewById(R.id.sign_out_text)
         deleteAccountText = view.findViewById(R.id.delete_account_text)
     }
@@ -102,7 +103,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun removeAdd() {
-
+        startActivity(Intent(requireContext(), RemoveAd::class.java))
     }
 
     private fun changeName() {

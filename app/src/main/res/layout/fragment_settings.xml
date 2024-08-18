@@ -147,27 +147,25 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/remove_add_text"
+            android:id="@+id/remove_ad_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
-            android:text="@string/remove_add"
+            android:text="@string/remove_ad"
             android:textSize="17sp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:visibility="gone"/>
+            android:foreground="?android:attr/selectableItemBackground"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:background="@color/line_gray"
-            android:visibility="gone"/>
+            android:background="@color/line_gray"/>
 
         <TextView
             android:id="@+id/change_name_text"

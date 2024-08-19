@@ -12,8 +12,8 @@ android {
         applicationId = "hoya.studio.vocabulary"
         minSdk = 24
         targetSdk = 34
-        versionCode = 4
-        versionName = "2.0.6a"
+        versionCode = 10
+        versionName = "2.1.0a"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -47,6 +47,8 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.androidx.viewpager2)
     implementation(libs.play.services.ads)
+    implementation(libs.billing)
+    implementation(libs.integrity)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

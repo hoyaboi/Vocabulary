@@ -2,6 +2,7 @@ package hoya.studio.vocabulary
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
@@ -21,7 +22,12 @@ import hoya.studio.vocabulary.tab.adapter.WordAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 
 class WordsActivity : AppCompatActivity() {
 
@@ -59,6 +65,7 @@ class WordsActivity : AppCompatActivity() {
         vocabName = intent.getStringExtra("vocabName") ?: throw IllegalStateException("vocabName이 전달되지 않았습니다.")
 
         setupViews()
+        checkAndRemoveAds()
 
         // ad 로드
         MobileAds.initialize(this)
@@ -301,5 +308,63 @@ class WordsActivity : AppCompatActivity() {
             R.drawable.checkbox_unchecked
         }
         checkAllButtonImageView.setImageResource(allCheckedImage)
+    }
+
+    private fun checkAndRemoveAds() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val paymentRef = Firebase.database.reference.child("users").child(currentUserId).child("payment")
+        val rewardRef = Firebase.database.reference.child("users").child(currentUserId).child("reward").child("time")
+
+        paymentRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val sku = snapshot.child("sku").getValue(String::class.java)
+                val purchaseTime = snapshot.child("purchaseTime").getValue(Long::class.java) ?: 0L
+
+                when (sku) {
+                    "remove_ad_subs" -> removeAds()
+                    "remove_ad_annual" -> {
+                        val oneYearInMillis = 365L * 24 * 60 * 60 * 1000
+                        if (System.currentTimeMillis() - purchaseTime < oneYearInMillis) {
+                            removeAds()
+                        } else {
+                            // 만료된 연간권 정보 삭제
+                            paymentRef.removeValue()
+                            showAds()
+                        }
+                    }
+                    else -> {
+                        rewardRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
+//                                val oneDayInMillis = 24 * 60 * 60 * 1000
+                                val oneDayInMillis = 20 * 1000
+
+                                if (System.currentTimeMillis() - rewardTime < oneDayInMillis) {
+                                    removeAds()
+                                } else {
+                                    showAds()
+                                }
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                showAds()
+                            }
+                        })
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                showAds()
+            }
+        })
+    }
+
+    private fun removeAds() {
+        adView.visibility = View.GONE
+    }
+
+    private fun showAds() {
+        adView.visibility = View.VISIBLE
     }
 }

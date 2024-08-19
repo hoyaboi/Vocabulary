@@ -1,6 +1,7 @@
 package hoya.studio.vocabulary
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -13,6 +14,12 @@ import com.google.android.gms.ads.MobileAds
 import hoya.studio.vocabulary.tab.ViewPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 
 class MainActivity : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
@@ -20,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adView: AdView
 
     private var backPressedTime: Long = 0
+    private val database = Firebase.database.reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
         setupViews()
+        checkAndRemoveAds()
 
         // ad 로드
         MobileAds.initialize(this)
@@ -53,6 +62,64 @@ class MainActivity : AppCompatActivity() {
         tabLayout = findViewById(R.id.tab_layout)
         viewPager = findViewById(R.id.view_pager)
         viewPager.adapter = ViewPagerAdapter(this)
+    }
+
+    private fun checkAndRemoveAds() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val paymentRef = database.child("users").child(currentUserId).child("payment")
+        val rewardRef = database.child("users").child(currentUserId).child("reward").child("time")
+
+        paymentRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val sku = snapshot.child("sku").getValue(String::class.java)
+                val purchaseTime = snapshot.child("purchaseTime").getValue(Long::class.java) ?: 0L
+
+                when (sku) {
+                    "remove_ad_subs" -> removeAds()
+                    "remove_ad_annual" -> {
+                        val oneYearInMillis = 365L * 24 * 60 * 60 * 1000
+                        if (System.currentTimeMillis() - purchaseTime < oneYearInMillis) {
+                            removeAds()
+                        } else {
+                            // 만료된 연간권 정보 삭제
+                            paymentRef.removeValue()
+                            showAds()
+                        }
+                    }
+                    else -> {
+                        rewardRef.addValueEventListener(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
+//                                val oneDayInMillis = 24 * 60 * 60 * 1000
+                                val oneDayInMillis = 20 * 1000
+
+                                if (System.currentTimeMillis() - rewardTime < oneDayInMillis) {
+                                    removeAds()
+                                } else {
+                                    showAds()
+                                }
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                showAds()
+                            }
+                        })
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                showAds()
+            }
+        })
+    }
+
+    private fun removeAds() {
+        adView.visibility = View.GONE
+    }
+
+    private fun showAds() {
+        adView.visibility = View.VISIBLE
     }
 
     @SuppressLint("MissingSuperCall")

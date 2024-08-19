@@ -140,88 +140,93 @@
 
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/words_list"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/separator2"
-        android:layout_below="@id/separator1"/>
+        android:layout_below="@id/separator1"
+        android:orientation="vertical">
 
-    <View
-        android:id="@+id/separator2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_above="@id/btn_container"
-        android:background="@color/light_gray"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/words_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
-    <LinearLayout
-        android:id="@+id/btn_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/ad_view"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:orientation="horizontal"
-        android:background="@color/line_gray">
+        <View
+            android:id="@+id/separator2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/hide_eng_btn"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/btn_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="5dp"
-            android:text="@string/hide_english"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:orientation="horizontal"
+            android:background="@color/line_gray">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/hide_eng_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="5dp"
+                android:text="@string/hide_english"
+                android:textColor="@color/gray"
+                android:backgroundTint="@color/white"
+                app:strokeColor="@color/light_gray"
+                app:strokeWidth="1dp"
+                app:rippleColor="@color/gray"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reset_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:text="@string/reset"
+                android:backgroundTint="@color/gray"
+                app:rippleColor="@color/white"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/hide_kor_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="20dp"
+                android:text="@string/hide_korean"
+                android:textColor="@color/gray"
+                android:backgroundTint="@color/white"
+                app:strokeColor="@color/light_gray"
+                app:strokeWidth="1dp"
+                app:rippleColor="@color/gray"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/no_word_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/no_word"
+            android:textSize="16sp"
             android:textColor="@color/gray"
-            android:backgroundTint="@color/white"
-            app:strokeColor="@color/light_gray"
-            app:strokeWidth="1dp"
-            app:rippleColor="@color/gray"/>
+            android:gravity="center"
+            android:visibility="gone"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/reset_btn"
-            android:layout_width="0dp"
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/ad_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:text="@string/reset"
-            android:backgroundTint="@color/gray"
-            app:rippleColor="@color/white"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/hide_kor_btn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="20dp"
-            android:text="@string/hide_korean"
-            android:textColor="@color/gray"
-            android:backgroundTint="@color/white"
-            app:strokeColor="@color/light_gray"
-            app:strokeWidth="1dp"
-            app:rippleColor="@color/gray"/>
+            app:adSize="BANNER"
+            app:adUnitId="@string/banner_ad_unit_id_for_test"
+            android:visibility="gone"/>
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/no_word_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/no_word"
-        android:textSize="16sp"
-        android:textColor="@color/gray"
-        android:gravity="center"
-        android:visibility="gone"/>
-
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/ad_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:adSize="BANNER"
-        app:adUnitId="@string/banner_ad_unit_id_for_test"/>
 
     <LinearLayout
         android:id="@+id/loading_container"

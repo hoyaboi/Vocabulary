@@ -35,6 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         app:adSize="BANNER"
-        app:adUnitId="@string/banner_ad_unit_id_for_test"/>
+        app:adUnitId="@string/banner_ad_unit_id_for_test"
+        android:visibility="gone"/>
 
 </RelativeLayout>

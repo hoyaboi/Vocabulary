@@ -14,6 +14,8 @@ firebaseAuth = "23.0.0"
 firebaseDatabase = "21.0.0"
 viewpager2 = "1.1.0"
 playServicesAds = "23.3.0"
+billing = "7.0.0"
+integrity = "1.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -28,6 +30,8 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
+billing = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
+integrity = { group = "com.google.android.play", name = "integrity", version.ref = "integrity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

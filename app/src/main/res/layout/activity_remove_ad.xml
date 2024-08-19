@@ -58,7 +58,6 @@
             android:layout_marginTop="15dp"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:gravity="center_vertical"
             android:orientation="vertical"
             android:background="@drawable/border"
             android:clickable="true"
@@ -68,6 +67,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
                 android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
@@ -79,7 +79,6 @@
                     android:paddingEnd="15dp"
                     android:text="@string/remove_ad_subs_text"
                     android:textColor="@color/white"
-                    android:textStyle="bold"
                     android:textSize="25sp"/>
 
                 <TextView
@@ -94,6 +93,7 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/subs_desc_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="20dp"
@@ -104,13 +104,12 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/remove_ad_one_price"
+            android:id="@+id/remove_ad_annual"
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:layout_marginTop="15dp"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:gravity="center_vertical"
             android:orientation="vertical"
             android:background="@drawable/border"
             android:clickable="true"
@@ -120,6 +119,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
                 android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
@@ -129,23 +129,22 @@
                     android:layout_weight="1"
                     android:paddingStart="20dp"
                     android:paddingEnd="15dp"
-                    android:text="@string/remove_ad_one_time_text"
+                    android:text="@string/remove_ad_annual_text"
                     android:textColor="@color/white"
-                    android:textStyle="bold"
                     android:textSize="25sp"/>
 
                 <TextView
-                    android:id="@+id/org_price_text"
+                    android:id="@+id/annual_origin_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:text="@string/remove_ad_one_price_org"/>
+                    android:text="@string/remove_ad_annual_price_org"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="20dp"
-                    android:text="@string/remove_ad_one_price_sale"
+                    android:text="@string/remove_ad_annual_price_sale"
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     android:textSize="25sp"/>
@@ -153,11 +152,12 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/annual_desc_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                android:text="@string/remove_ad_one_price_desc"
+                android:text="@string/remove_ad_annual_desc"
                 android:textColor="@color/white"/>
 
         </LinearLayout>
@@ -169,7 +169,6 @@
             android:layout_marginTop="15dp"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:gravity="center_vertical"
             android:orientation="vertical"
             android:background="@drawable/border"
             android:clickable="true"
@@ -179,6 +178,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
                 android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
@@ -189,7 +189,6 @@
                     android:paddingEnd="15dp"
                     android:text="@string/remove_ad_free_text"
                     android:textColor="@color/white"
-                    android:textStyle="bold"
                     android:textSize="25sp"/>
 
                 <View

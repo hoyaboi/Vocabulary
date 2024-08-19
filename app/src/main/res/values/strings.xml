@@ -60,17 +60,16 @@
     <string name="check_new_pwd">새 비밀번호 확인</string>
     <string name="remove_ad">광고 제거</string>
     <string name="delete_account">탈퇴하기</string>
-    <string name="version">버전 2.0.7a</string>
-    
+
     <!--  광고 제거  -->
     <string name="product_list_text">상품</string>
     <string name="remove_ad_subs_text">정기 결제</string>
     <string name="remove_ad_subs_price">990원/월</string>
     <string name="remove_ad_subs_desc">월 990원으로 광고를 제거합니다</string>
-    <string name="remove_ad_one_time_text">연간 결제</string>
-    <string name="remove_ad_one_price_org">11,880원</string>
-    <string name="remove_ad_one_price_sale">8,900원</string>
-    <string name="remove_ad_one_price_desc">일년에 한 번 결제로 정기 결제보다 25% 저렴하게 광고를 제거합니다</string>
+    <string name="remove_ad_annual_text">연간 결제</string>
+    <string name="remove_ad_annual_price_org">11,880원</string>
+    <string name="remove_ad_annual_price_sale">8,900원</string>
+    <string name="remove_ad_annual_desc">일년에 한 번 결제로 정기 결제보다 25% 저렴하게 광고를 제거합니다</string>
     <string name="remove_ad_free_text">무료 광고 제거</string>
     <string name="remove_ad_free_desc">광고를 시청하고 하루 동안 배너 광고를 제거할 수 있습니다</string>
     
@@ -83,4 +82,10 @@
     <string name="admob_app_id">ca-app-pub-6312729833573027~5328976275</string>
     <string name="banner_ad_unit_id">ca-app-pub-6312729833573027/8314232267</string>
     <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="reward_ad_unit_id">ca-app-pub-6312729833573027/9562707080</string>
+    <string name="reward_ad_unit_id_for_test">ca-app-pub-3940256099942544/5224354917</string>
+
+    <!--  앱 버전  -->
+    <string name="version">버전 2.1.0</string>
+
 </resources>

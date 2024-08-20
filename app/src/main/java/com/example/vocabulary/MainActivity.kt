@@ -3,11 +3,15 @@ package hoya.studio.vocabulary
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingResult
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
@@ -20,8 +24,11 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var billingClient: BillingClient
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
     private lateinit var adView: AdView
@@ -37,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
         setupViews()
+        setupBillingClient()
         checkAndRemoveAds()
 
         // ad 로드
@@ -64,6 +72,60 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = ViewPagerAdapter(this)
     }
 
+    private fun setupBillingClient() {
+        billingClient = BillingClient.newBuilder(this)
+            .enablePendingPurchases()
+            .setListener { billingResult, purchases -> }
+            .build()
+
+        billingClient.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    Log.d("BillingClient", "Setup finished successfully")
+                    updatePurchaseInfo() // 구독 정보 업데이트
+                } else {
+                    Log.e("BillingClient", "Setup failed with response code: ${billingResult.responseCode}")
+                }
+            }
+
+            override fun onBillingServiceDisconnected() {
+                Log.w("BillingClient", "Service disconnected")
+            }
+        })
+    }
+
+    private fun updatePurchaseInfo() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val paymentRef = database.child("users").child(currentUserId).child("payment")
+
+        billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS) { billingResult, purchases ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                if (purchases.isNotEmpty()) {
+                    val purchase = purchases.first()
+                    val sku = purchase.skus.first()
+
+                    paymentRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (!snapshot.exists()) {
+                                // payment 정보가 없으면 추가
+                                paymentRef.child("sku").setValue(sku)
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("Firebase", "Failed to read payment info: ${error.message}")
+                        }
+                    })
+                } else {
+                    // payment 정보가 있으면 제거
+                    paymentRef.removeValue()
+                }
+            } else {
+                Log.e("BillingClient", "Query failed with response code: ${billingResult.responseCode}")
+            }
+        }
+    }
+
     private fun checkAndRemoveAds() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val paymentRef = database.child("users").child(currentUserId).child("payment")
@@ -72,28 +134,22 @@ class MainActivity : AppCompatActivity() {
         paymentRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val sku = snapshot.child("sku").getValue(String::class.java)
-                val purchaseTime = snapshot.child("purchaseTime").getValue(Long::class.java) ?: 0L
+                val currentCalendar = Calendar.getInstance()
 
                 when (sku) {
                     "remove_ad_subs" -> removeAds()
-                    "remove_ad_annual" -> {
-                        val oneYearInMillis = 365L * 24 * 60 * 60 * 1000
-                        if (System.currentTimeMillis() - purchaseTime < oneYearInMillis) {
-                            removeAds()
-                        } else {
-                            // 만료된 연간권 정보 삭제
-                            paymentRef.removeValue()
-                            showAds()
-                        }
-                    }
+                    "remove_ad_annu" -> removeAds()
                     else -> {
-                        rewardRef.addValueEventListener(object : ValueEventListener {
+                        rewardRef.addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
-                                val oneDayInMillis = 24 * 60 * 60 * 1000
-//                                val oneDayInMillis = 20 * 1000
+                                val rewardCalendar = Calendar.getInstance().apply {
+                                    timeInMillis = rewardTime
+//                                add(Calendar.DAY_OF_YEAR, 1) // 1일 추가
+                                    add(Calendar.MINUTE, 1) // 테스트
+                                }
 
-                                if (System.currentTimeMillis() - rewardTime < oneDayInMillis) {
+                                if (currentCalendar.before(rewardCalendar)) {
                                     removeAds()
                                 } else {
                                     showAds()
@@ -131,5 +187,11 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "단어장을 닫으려면 뒤로 가기 버튼을 한 번 더 누르세요", Toast.LENGTH_SHORT).show()
         }
         backPressedTime = System.currentTimeMillis()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupBillingClient()
+        checkAndRemoveAds()
     }
 }

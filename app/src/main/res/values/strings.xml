@@ -68,8 +68,8 @@
     <string name="remove_ad_subs_desc">월 990원으로 광고를 제거합니다</string>
     <string name="remove_ad_annual_text">연간 결제</string>
     <string name="remove_ad_annual_price_org">11,880원</string>
-    <string name="remove_ad_annual_price_sale">8,900원</string>
-    <string name="remove_ad_annual_desc">일년에 한 번 결제로 정기 결제보다 25% 저렴하게 광고를 제거합니다</string>
+    <string name="remove_ad_annual_price_sale">8,900원/년</string>
+    <string name="remove_ad_annual_desc">연간 결제로 정기 결제보다 25% 저렴하게 광고를 제거합니다</string>
     <string name="remove_ad_free_text">무료 광고 제거</string>
     <string name="remove_ad_free_desc">광고를 시청하고 하루 동안 배너 광고를 제거할 수 있습니다</string>
     
@@ -77,6 +77,7 @@
     <string name="loading_vacabs">단어장 불러오는 중..</string>
     <string name="loading_words">단어 불러오는 중..</string>
     <string name="searching_vacabs">단어장 검색 중..</string>
+    <string name="loading_product">상품 불러오는 중..</string>
     <string name="loading_ad">광고 불러오는 중..</string>
 
     <!--  애드몹 아이디  -->
@@ -87,6 +88,6 @@
     <string name="reward_ad_unit_id_for_test">ca-app-pub-3940256099942544/5224354917</string>
 
     <!--  앱 버전  -->
-    <string name="version">버전 2.1.1</string>
+    <string name="version">버전 2.2.0</string>
 
 </resources>

@@ -1,11 +1,14 @@
 package hoya.studio.vocabulary
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Paint
+import android.net.Uri
 import com.google.android.gms.ads.AdRequest
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.CalendarContract.CalendarAlerts
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -51,7 +54,9 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
     private lateinit var subsDescText: TextView
     private lateinit var annualDescText: TextView
     private lateinit var originPriceText: TextView
+    private lateinit var productContainer: LinearLayout
     private lateinit var loadingContainer: LinearLayout
+    private lateinit var loadingAdContainer: LinearLayout
 
     private var skuDetailsList: List<SkuDetails> = emptyList()
     private val database = Firebase.database.reference
@@ -66,11 +71,15 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
 
         setupViews()
         setupBillingClient()
-        checkAndDisplayPurchaseInfo()
         loadRewardedAd()
 
+        Handler(Looper.getMainLooper()).postDelayed({
+            loadingContainer.visibility = View.GONE
+            productContainer.visibility = View.VISIBLE
+        }, 500)
+
         removeAdSubs.setOnClickListener {
-            if (subsDescText.text.contains("다음 결제일")) {
+            if (subsDescText.text.contains("구독 중")) {
                 showCancelSubscriptionDialog()
             } else {
                 initiatePurchase("remove_ad_subs")
@@ -78,15 +87,25 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
         }
 
         removeAdAnnual.setOnClickListener {
-            initiatePurchase("remove_ad_annual")
+            if (annualDescText.text.contains("구독 중")) {
+                showCancelSubscriptionDialog()
+            } else {
+                initiatePurchase("remove_ad_annu")
+            }
         }
 
         removeAdFree.setOnClickListener {
-            loadingContainer.visibility = View.VISIBLE
+            loadingAdContainer.visibility = View.VISIBLE
+            removeAdSubs.isEnabled = false
+            removeAdAnnual.isEnabled = false
+            removeAdFree.isEnabled = false
             Handler(Looper.getMainLooper()).postDelayed({
                 showRewardedAd()
-                loadingContainer.visibility = View.GONE
-            }, 1500)
+                loadingAdContainer.visibility = View.GONE
+                removeAdSubs.isEnabled = true
+                removeAdAnnual.isEnabled = true
+                removeAdFree.isEnabled = true
+            }, 1300)
         }
     }
 
@@ -98,7 +117,9 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
         annualDescText = findViewById(R.id.annual_desc_text)
         originPriceText = findViewById(R.id.annual_origin_text)
         originPriceText.paintFlags = originPriceText.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        productContainer = findViewById(R.id.product_container)
         loadingContainer = findViewById(R.id.loading_container)
+        loadingAdContainer = findViewById(R.id.loading_ad_container)
     }
 
     private fun setupBillingClient() {
@@ -111,6 +132,7 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     loadProducts()
+                    checkAndDisplayPurchaseInfo()
                 }
             }
 
@@ -121,25 +143,13 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
     }
 
     private fun loadProducts() {
-        val subsSkuList = listOf("remove_ad_subs")
-        val subsParams = SkuDetailsParams.newBuilder()
-        subsParams.setSkusList(subsSkuList).setType(BillingClient.SkuType.SUBS)
+        val skuList = listOf("remove_ad_subs", "remove_ad_annu")
+        val params = SkuDetailsParams.newBuilder()
+        params.setSkusList(skuList).setType(BillingClient.SkuType.SUBS)
 
-        billingClient.querySkuDetailsAsync(subsParams.build()) { billingResult, skuDetailsList ->
+        billingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailsList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
-                this.skuDetailsList = this.skuDetailsList + skuDetailsList
-            } else {
-                Toast.makeText(applicationContext, "상품을 불러오는데 실패했습니다", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        val inAppSkuList = listOf("remove_ad_annual")
-        val inAppParams = SkuDetailsParams.newBuilder()
-        inAppParams.setSkusList(inAppSkuList).setType(BillingClient.SkuType.INAPP)
-
-        billingClient.querySkuDetailsAsync(inAppParams.build()) { billingResult, skuDetailsList ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
-                this.skuDetailsList = this.skuDetailsList + skuDetailsList
+                this.skuDetailsList = skuDetailsList
             } else {
                 Toast.makeText(applicationContext, "상품을 불러오는데 실패했습니다", Toast.LENGTH_SHORT).show()
             }
@@ -165,8 +175,6 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             Toast.makeText(this, "결제가 취소되었습니다", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "오류: ${billingResult.debugMessage}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -189,29 +197,18 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         savePurchaseToFirebase(userId, sku, purchaseTime)
 
-        when (sku) {
-            "remove_ad_subs" -> {
-                Toast.makeText(this, "구독이 시작되었습니다", Toast.LENGTH_SHORT).show()
-                updateSubscriptionInfo(purchaseTime)
-                disableOtherOptions(true)
-            }
-            "remove_ad_annual" -> {
-                Toast.makeText(this, "연간 결제가 완료되었습니다", Toast.LENGTH_SHORT).show()
-                updateAnnualInfo(purchaseTime)
-                disableOtherOptions(false)
-            }
-        }
+        Toast.makeText(this, "구독이 시작되었습니다", Toast.LENGTH_SHORT).show()
     }
 
     private fun savePurchaseToFirebase(userId: String, sku: String, purchaseTime: Long) {
         val paymentRef = database.child("users").child(userId).child("payment")
         val paymentData = mutableMapOf<String, Any>(
-            "sku" to sku,
-            "purchaseTime" to purchaseTime
+            "sku" to sku
         )
 
         paymentRef.setValue(paymentData)
     }
+
 
     private fun checkAndDisplayPurchaseInfo() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -220,15 +217,14 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
         paymentRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val sku = snapshot.child("sku").getValue(String::class.java)
-                val purchaseTime = snapshot.child("purchaseTime").getValue(Long::class.java) ?: 0L
 
                 when (sku) {
                     "remove_ad_subs" -> {
-                        updateSubscriptionInfo(purchaseTime)
+                        subsDescText.text = "정기권 구독 중 - 상품을 클릭하면 Google Play 계정으로 이동해 구독을 관리할 수 있습니다"
                         disableOtherOptions(true)
                     }
-                    "remove_ad_annual" -> {
-                        updateAnnualInfo(purchaseTime)
+                    "remove_ad_annu" -> {
+                        annualDescText.text = "연간권 구독 중 - 상품을 클릭하면 Google Play 계정으로 이동해 구독을 관리할 수 있습니다"
                         disableOtherOptions(false)
                     }
                 }
@@ -240,31 +236,12 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
         })
     }
 
-    private fun updateSubscriptionInfo(purchaseTime: Long) {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = purchaseTime
-        calendar.add(Calendar.MONTH, 1)
-
-        val nextBillingDate = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault()).format(calendar.time)
-        subsDescText.text = "다음 결제일: $nextBillingDate \n구독 취소를 원하면 해당 상품을 눌러주세요"
-    }
-
-    private fun updateAnnualInfo(purchaseTime: Long) {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = purchaseTime
-        calendar.add(Calendar.YEAR, 1)
-
-        val expirationDate = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault()).format(calendar.time)
-        annualDescText.text = "연간권 만료일: $expirationDate"
-    }
-
-    private fun disableOtherOptions(isSubscription: Boolean) {
-        if (isSubscription) {
+    private fun disableOtherOptions(isMonthly: Boolean) {
+        if (isMonthly) {
             removeAdAnnual.isEnabled = false
             removeAdFree.isEnabled = false
         } else {
             removeAdSubs.isEnabled = false
-            removeAdAnnual.isEnabled = false
             removeAdFree.isEnabled = false
         }
     }
@@ -272,28 +249,14 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
     private fun showCancelSubscriptionDialog() {
         AlertDialog.Builder(this)
             .setTitle("구독 취소")
-            .setMessage("정기 구독을 취소하시겠습니까? 취소 시 혜택이 바로 종료됩니다.")
+            .setMessage("구독을 취소해도 남은 기간 혜택이 유지됩니다")
             .setPositiveButton("예") { _, _ ->
-                cancelSubscription()
+                val uri = Uri.parse("https://play.google.com/store/account/subscriptions")
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(intent)
             }
             .setNegativeButton("아니오", null)
             .show()
-    }
-
-    private fun cancelSubscription() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val paymentRef = database.child("users").child(userId).child("payment")
-
-        paymentRef.removeValue().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                subsDescText.text = "정기 구독이 취소되었습니다"
-                removeAdAnnual.isEnabled = true
-                removeAdFree.isEnabled = true
-                Toast.makeText(this, "구독이 취소되었습니다", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "구독 취소에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun loadRewardedAd() {
@@ -301,7 +264,6 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
         RewardedAd.load(this, rewardAdUnitId, adRequest, object : RewardedAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 rewardedAd = null
-                Toast.makeText(applicationContext, "광고를 불러오는데 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
 
             override fun onAdLoaded(ad: RewardedAd) {
@@ -334,5 +296,10 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
     private fun saveRewardTimeToFirebase(userId: String, rewardTime: Long) {
         val rewardRef = database.child("users").child(userId).child("reward")
         rewardRef.child("time").setValue(rewardTime)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkAndDisplayPurchaseInfo()
     }
 }

@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -15,6 +16,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingResult
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
@@ -28,6 +32,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
+import java.util.Calendar
 
 class WordsActivity : AppCompatActivity() {
 
@@ -36,6 +41,7 @@ class WordsActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var vocabId: String
     private lateinit var vocabName: String
+    private lateinit var billingClient: BillingClient
 
     private lateinit var adView: AdView
     private lateinit var toolbar: MaterialToolbar
@@ -65,6 +71,7 @@ class WordsActivity : AppCompatActivity() {
         vocabName = intent.getStringExtra("vocabName") ?: throw IllegalStateException("vocabName이 전달되지 않았습니다.")
 
         setupViews()
+        setupBillingClient()
         checkAndRemoveAds()
 
         // ad 로드
@@ -126,6 +133,104 @@ class WordsActivity : AppCompatActivity() {
         checkAllButton = findViewById(R.id.check_all_btn)
         checkAllButtonImageView = findViewById(R.id.check_all_btn_image)
         loadingContainer = findViewById(R.id.loading_container)
+    }
+
+    private fun setupBillingClient() {
+        billingClient = BillingClient.newBuilder(this)
+            .enablePendingPurchases()
+            .setListener { billingResult, purchases -> }
+            .build()
+
+        billingClient.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    Log.d("BillingClient", "Setup finished successfully")
+                    updatePurchaseInfo() // 구독 정보 업데이트
+                } else {
+                    Log.e("BillingClient", "Setup failed with response code: ${billingResult.responseCode}")
+                }
+            }
+
+            override fun onBillingServiceDisconnected() {
+                Log.w("BillingClient", "Service disconnected")
+            }
+        })
+    }
+
+    private fun updatePurchaseInfo() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val paymentRef = Firebase.database.reference.child("users").child(currentUserId).child("payment")
+
+        billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS) { billingResult, purchases ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                if (purchases.isNotEmpty()) {
+                    val purchase = purchases.first()
+                    val sku = purchase.skus.first()
+
+                    paymentRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (!snapshot.exists()) {
+                                // payment 정보가 없으면 추가
+                                paymentRef.child("sku").setValue(sku)
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("Firebase", "Failed to read payment info: ${error.message}")
+                        }
+                    })
+                } else {
+                    // payment 정보가 있으면 제거
+                    paymentRef.removeValue()
+                }
+            } else {
+                Log.e("BillingClient", "Query failed with response code: ${billingResult.responseCode}")
+            }
+        }
+    }
+
+    private fun checkAndRemoveAds() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val paymentRef = Firebase.database.reference.child("users").child(currentUserId).child("payment")
+        val rewardRef = Firebase.database.reference.child("users").child(currentUserId).child("reward").child("time")
+
+        paymentRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val sku = snapshot.child("sku").getValue(String::class.java)
+                val currentCalendar = Calendar.getInstance()
+
+                when (sku) {
+                    "remove_ad_subs" -> removeAds()
+                    "remove_ad_annu" -> removeAds()
+                    else -> {
+                        rewardRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
+                                val rewardCalendar = Calendar.getInstance().apply {
+                                    timeInMillis = rewardTime
+//                                add(Calendar.DAY_OF_YEAR, 1) // 1일 추가
+                                    add(Calendar.MINUTE, 1) // 테스트
+                                }
+
+                                if (currentCalendar.before(rewardCalendar)) {
+                                    removeAds()
+                                } else {
+                                    showAds()
+                                }
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                showAds()
+                            }
+                        })
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                showAds()
+            }
+        })
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {
@@ -308,56 +413,6 @@ class WordsActivity : AppCompatActivity() {
             R.drawable.checkbox_unchecked
         }
         checkAllButtonImageView.setImageResource(allCheckedImage)
-    }
-
-    private fun checkAndRemoveAds() {
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val paymentRef = Firebase.database.reference.child("users").child(currentUserId).child("payment")
-        val rewardRef = Firebase.database.reference.child("users").child(currentUserId).child("reward").child("time")
-
-        paymentRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val sku = snapshot.child("sku").getValue(String::class.java)
-                val purchaseTime = snapshot.child("purchaseTime").getValue(Long::class.java) ?: 0L
-
-                when (sku) {
-                    "remove_ad_subs" -> removeAds()
-                    "remove_ad_annual" -> {
-                        val oneYearInMillis = 365L * 24 * 60 * 60 * 1000
-                        if (System.currentTimeMillis() - purchaseTime < oneYearInMillis) {
-                            removeAds()
-                        } else {
-                            // 만료된 연간권 정보 삭제
-                            paymentRef.removeValue()
-                            showAds()
-                        }
-                    }
-                    else -> {
-                        rewardRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
-                                val oneDayInMillis = 24 * 60 * 60 * 1000
-//                                val oneDayInMillis = 20 * 1000
-
-                                if (System.currentTimeMillis() - rewardTime < oneDayInMillis) {
-                                    removeAds()
-                                } else {
-                                    showAds()
-                                }
-                            }
-
-                            override fun onCancelled(error: DatabaseError) {
-                                showAds()
-                            }
-                        })
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                showAds()
-            }
-        })
     }
 
     private fun removeAds() {

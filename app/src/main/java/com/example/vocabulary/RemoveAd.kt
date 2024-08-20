@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Paint
 import com.google.android.gms.ads.AdRequest
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -49,6 +51,7 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
     private lateinit var subsDescText: TextView
     private lateinit var annualDescText: TextView
     private lateinit var originPriceText: TextView
+    private lateinit var loadingContainer: LinearLayout
 
     private var skuDetailsList: List<SkuDetails> = emptyList()
     private val database = Firebase.database.reference
@@ -79,7 +82,11 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
         }
 
         removeAdFree.setOnClickListener {
-            showRewardedAd()
+            loadingContainer.visibility = View.VISIBLE
+            Handler(Looper.getMainLooper()).postDelayed({
+                showRewardedAd()
+                loadingContainer.visibility = View.GONE
+            }, 1500)
         }
     }
 
@@ -91,6 +98,7 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
         annualDescText = findViewById(R.id.annual_desc_text)
         originPriceText = findViewById(R.id.annual_origin_text)
         originPriceText.paintFlags = originPriceText.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        loadingContainer = findViewById(R.id.loading_container)
     }
 
     private fun setupBillingClient() {

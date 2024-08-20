@@ -12,8 +12,8 @@ android {
         applicationId = "hoya.studio.vocabulary"
         minSdk = 24
         targetSdk = 34
-        versionCode = 10
-        versionName = "2.1.0a"
+        versionCode = 11
+        versionName = "2.1.1a"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -87,7 +87,6 @@
                     android:layout_marginEnd="20dp"
                     android:text="@string/remove_ad_subs_price"
                     android:textColor="@color/black"
-                    android:textStyle="bold"
                     android:textSize="25sp"/>
 
             </LinearLayout>
@@ -146,7 +145,6 @@
                     android:layout_marginEnd="20dp"
                     android:text="@string/remove_ad_annual_price_sale"
                     android:textColor="@color/black"
-                    android:textStyle="bold"
                     android:textSize="25sp"/>
 
             </LinearLayout>
@@ -208,6 +206,36 @@
                 android:textColor="@color/white"/>
 
         </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/loading_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:padding="15dp"
+        android:background="@drawable/loading_border"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/white"/>
+
+        <TextView
+            android:id="@+id/loading_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/loading_ad"
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 

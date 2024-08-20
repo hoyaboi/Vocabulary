@@ -336,8 +336,8 @@ class WordsActivity : AppCompatActivity() {
                         rewardRef.addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
-//                                val oneDayInMillis = 24 * 60 * 60 * 1000
-                                val oneDayInMillis = 20 * 1000
+                                val oneDayInMillis = 24 * 60 * 60 * 1000
+//                                val oneDayInMillis = 20 * 1000
 
                                 if (System.currentTimeMillis() - rewardTime < oneDayInMillis) {
                                     removeAds()

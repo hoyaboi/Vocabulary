@@ -32,7 +32,7 @@
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
             android:paddingTop="5dp"
-            android:paddingEnd="5dp"
+            android:paddingEnd="10dp"
             android:paddingBottom="5dp"
             android:text="temp"
             android:textSize="17sp"

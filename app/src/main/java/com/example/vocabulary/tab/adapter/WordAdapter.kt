@@ -1,5 +1,6 @@
 package hoya.studio.vocabulary.tab.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,7 @@ import hoya.studio.vocabulary.R
 import hoya.studio.vocabulary.Word
 
 class WordAdapter(
-    private val items: List<Word>,
+    private var items: List<Word>,
     private val onCheckChanged: (Boolean) -> Unit,
     private val onAllItemsChecked: (Boolean) -> Unit,
     private val isCheckBoxEnabled: Boolean = true
@@ -35,6 +36,16 @@ class WordAdapter(
 
     override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
         val word = items[position]
+
+        // 모든 아이템에 기본 마진을 설정
+        val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.bottomMargin = 0
+
+        // 마지막 아이템인지 확인하고, 마진 추가
+        if (position == itemCount - 1) {
+            layoutParams.bottomMargin = 70.dpToPx(holder.itemView.context)
+        }
+        holder.itemView.layoutParams = layoutParams
 
         holder.engText.text = if (hiddenEnglishWords.contains(word.id)) "" else word.english
         holder.korText.text = if (hiddenKoreanWords.contains(word.id)) "" else word.korean
@@ -117,6 +128,15 @@ class WordAdapter(
         }
         notifyDataSetChanged()
         onAllItemsChecked(selectAll)
+    }
+
+    fun shuffleItems() {
+        items = items.shuffled()
+        notifyDataSetChanged()
+    }
+
+    fun Int.dpToPx(context: Context): Int {
+        return (this * context.resources.displayMetrics.density).toInt()
     }
 }
 

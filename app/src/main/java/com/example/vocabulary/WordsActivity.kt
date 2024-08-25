@@ -57,6 +57,7 @@ class WordsActivity : AppCompatActivity() {
     private lateinit var checkAllButton: FrameLayout
     private lateinit var checkAllButtonImageView: ImageView
     private lateinit var loadingContainer: LinearLayout
+    private lateinit var shuffleButton: View
 
     private var isAllChecked = false
 
@@ -115,6 +116,12 @@ class WordsActivity : AppCompatActivity() {
                 toggleSelectAllItems()
             }
         }
+
+        shuffleButton.setOnClickListener {
+            if (::adapter.isInitialized) {
+                adapter.shuffleItems()
+            }
+        }
     }
 
     private fun setupViews() {
@@ -133,6 +140,7 @@ class WordsActivity : AppCompatActivity() {
         checkAllButton = findViewById(R.id.check_all_btn)
         checkAllButtonImageView = findViewById(R.id.check_all_btn_image)
         loadingContainer = findViewById(R.id.loading_container)
+        shuffleButton = findViewById(R.id.shuffle_btn)
     }
 
     private fun setupBillingClient() {

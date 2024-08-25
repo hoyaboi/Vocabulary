@@ -34,6 +34,7 @@ class CheckedWordsFragment : Fragment() {
     private lateinit var checkAllButton: FrameLayout
     private lateinit var checkAllButtonImageView: ImageView
     private lateinit var loadingContainer: LinearLayout
+    private lateinit var shuffleButton: View
 
     private var isAllChecked = false
 
@@ -77,6 +78,12 @@ class CheckedWordsFragment : Fragment() {
                 toggleSelectAllItems()
             }
         }
+
+        shuffleButton.setOnClickListener {
+            if (::adapter.isInitialized) {
+                adapter.shuffleItems()
+            }
+        }
     }
 
     private fun setupViews(view: View) {
@@ -89,6 +96,7 @@ class CheckedWordsFragment : Fragment() {
         checkAllButton = view.findViewById(R.id.check_all_btn)
         checkAllButtonImageView = view.findViewById(R.id.check_all_btn_image)
         loadingContainer = view.findViewById(R.id.loading_container)
+        shuffleButton = view.findViewById(R.id.shuffle_btn)
     }
 
     private fun toggleEditButtonsVisibility(hasSelectedWords: Boolean) {

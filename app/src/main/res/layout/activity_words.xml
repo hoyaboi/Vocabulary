@@ -81,17 +81,39 @@
             android:text="@string/english"
             android:textSize="17sp"/>
 
-        <TextView
-            android:id="@+id/korean"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:paddingTop="5dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="5dp"
-            android:text="@string/korean"
-            android:textSize="17sp"/>
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/korean"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:paddingTop="5dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="5dp"
+                android:text="@string/korean"
+                android:textSize="17sp"/>
+
+            <View
+                android:id="@+id/shuffle_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/shuffle"
+                android:backgroundTint="@color/gray"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

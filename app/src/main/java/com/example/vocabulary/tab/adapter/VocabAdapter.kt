@@ -32,13 +32,6 @@ class VocabAdapter(
         holder.creatorText.text = vocab.owner
         holder.wordsCountText.text = "${vocab.words.size} 단어"
 
-        // 첫 번째 아이템에만 상단에 margin 추가
-        if (position == 0) {
-            val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.topMargin = 15.dpToPx(holder.itemView.context)
-            holder.itemView.layoutParams = layoutParams
-        }
-
         holder.itemView.setOnClickListener {
             onVocabClicked(vocab)
         }

@@ -2,10 +2,12 @@ package hoya.studio.vocabulary
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -45,7 +47,8 @@ class WordsActivity : AppCompatActivity() {
 
     private lateinit var adView: AdView
     private lateinit var toolbar: MaterialToolbar
-    private lateinit var addWordButton: MaterialButton
+    private lateinit var editWordButton: ImageView
+    private lateinit var addWordButton: ImageView
     private lateinit var recyclerView: RecyclerView
     private lateinit var editBtnContainer: LinearLayout
     private lateinit var checkBtn: MaterialButton
@@ -58,8 +61,10 @@ class WordsActivity : AppCompatActivity() {
     private lateinit var checkAllButtonImageView: ImageView
     private lateinit var loadingContainer: LinearLayout
     private lateinit var shuffleButton: View
+    private lateinit var editWordText: TextView
 
     private var isAllChecked = false
+    private var isEditMode = false // 단어 수정 모드 상태
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +94,10 @@ class WordsActivity : AppCompatActivity() {
 
         addWordButton.setOnClickListener {
             showSaveWordDialog()
+        }
+
+        editWordButton.setOnClickListener {
+            toggleEditMode()
         }
 
         checkBtn.setOnClickListener {
@@ -129,6 +138,7 @@ class WordsActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
         toolbar.title = vocabName
         addWordButton = findViewById(R.id.add_word_btn)
+        editWordButton = findViewById(R.id.edit_word_btn)
         recyclerView = findViewById(R.id.words_list)
         editBtnContainer = findViewById(R.id.edit_btn_container)
         checkBtn = findViewById(R.id.check_btn)
@@ -141,6 +151,7 @@ class WordsActivity : AppCompatActivity() {
         checkAllButtonImageView = findViewById(R.id.check_all_btn_image)
         loadingContainer = findViewById(R.id.loading_container)
         shuffleButton = findViewById(R.id.shuffle_btn)
+        editWordText = findViewById(R.id.edit_word_text)
     }
 
     private fun setupBillingClient() {
@@ -216,8 +227,8 @@ class WordsActivity : AppCompatActivity() {
                                 val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
                                 val rewardCalendar = Calendar.getInstance().apply {
                                     timeInMillis = rewardTime
-//                                add(Calendar.DAY_OF_YEAR, 1) // 1일 추가
-                                    add(Calendar.MINUTE, 1) // 테스트
+                                    add(Calendar.HOUR, 6) // 1일 추가
+//                                    add(Calendar.MINUTE, 1) // 테스트
                                 }
 
                                 if (currentCalendar.before(rewardCalendar)) {
@@ -333,6 +344,71 @@ class WordsActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun toggleEditMode() {
+        isEditMode = !isEditMode // 수정 모드 토글
+        adapter.enableEditMode(isEditMode)
+
+        if (isEditMode) {
+            adapter.clearSelection()
+            disableCheckAllButton()
+            addWordButton.isEnabled = false
+            editBtnContainer.visibility = View.GONE
+            editWordText.visibility = View.VISIBLE
+            editWordButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.black)
+        } else {
+            enableCheckAllButton()
+            addWordButton.isEnabled = true
+            editWordText.visibility = View.GONE
+            editWordButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.white)
+        }
+    }
+
+    private fun exitEditMode() {
+        isEditMode = false
+        adapter.enableEditMode(false)
+        editWordText.visibility = View.GONE
+        editWordButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.white)
+    }
+
+    private fun showEditWordDialog(word: Word) {
+        val builder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_save_word, null)
+
+        val engInput = dialogView.findViewById<TextInputEditText>(R.id.word_eng_input)
+        val korInput = dialogView.findViewById<TextInputEditText>(R.id.word_kor_input)
+
+        engInput.setText(word.english)
+        korInput.setText(word.korean)
+
+        builder.setView(dialogView)
+            .setTitle("단어 수정")
+            .setPositiveButton("수정") { _, _ ->
+                val newEngWord = engInput.text.toString().trim()
+                val newKorWord = korInput.text.toString().trim()
+
+                if (newEngWord.isNotEmpty() && newKorWord.isNotEmpty()) {
+                    word.english = newEngWord
+                    word.korean = newKorWord
+                    val userId = auth.currentUser?.uid ?: return@setPositiveButton
+                    database.updateWordInVocab(word, vocabId, userId) { success ->
+                        if (success) {
+                            Toast.makeText(this, "단어가 수정되었습니다.", Toast.LENGTH_SHORT).show()
+                            refreshData()
+                            exitEditMode()
+                        } else {
+                            Toast.makeText(this, "단어장 생성자만 수정할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "단어와 뜻을 입력하세요.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("취소", null)
+            .create()
+            .show()
+    }
+
     private fun saveWord(word: Word) {
         // 단어 추가 로직
         val userId = auth.currentUser?.uid ?: return
@@ -368,7 +444,8 @@ class WordsActivity : AppCompatActivity() {
                         isAllChecked = allItemsChecked
                         updateCheckAllButtonState()
                     },
-                    isCheckBoxEnabled = true
+                    onEditWordClick = { word -> showEditWordDialog(word) },
+                    isCheckBoxEnabled = !isEditMode // 수정 모드 시 체크박스 비활성화
                 )
                 recyclerView.adapter = adapter
                 enableCheckAllButton()
@@ -392,6 +469,7 @@ class WordsActivity : AppCompatActivity() {
             emptyList(),  // 빈 목록을 가진 어댑터로 초기화
             onCheckChanged = { toggleEditButtonsVisibility(false) },
             onAllItemsChecked = { isAllChecked = false },
+            onEditWordClick = {},
             isCheckBoxEnabled = false
         )
         recyclerView.adapter = adapter

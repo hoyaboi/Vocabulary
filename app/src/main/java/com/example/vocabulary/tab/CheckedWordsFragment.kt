@@ -164,6 +164,7 @@ class CheckedWordsFragment : Fragment() {
                         isAllChecked = allItemsChecked
                         updateCheckAllButtonState()
                     },
+                    onEditWordClick = {},
                     isCheckBoxEnabled = true
                 )
                 recyclerView.adapter = adapter
@@ -188,6 +189,7 @@ class CheckedWordsFragment : Fragment() {
             emptyList(),  // 빈 목록을 가진 어댑터로 초기화
             onCheckChanged = { toggleEditButtonsVisibility(false) },
             onAllItemsChecked = { isAllChecked = false },
+            onEditWordClick = {},
             isCheckBoxEnabled = false
         )
         recyclerView.adapter = adapter

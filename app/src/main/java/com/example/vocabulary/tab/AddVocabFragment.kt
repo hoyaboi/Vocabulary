@@ -11,6 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import hoya.studio.vocabulary.Database
@@ -68,7 +69,14 @@ class AddVocabFragment : Fragment() {
         infoText = view.findViewById(R.id.info_text)
         loadingContainer = view.findViewById(R.id.loading_container)
 
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        // 화면 크기에 따라 레이아웃 매니저 설정
+        val isTabletOrFoldable = resources.configuration.screenWidthDp >= 600
+
+        recyclerView.layoutManager = if (isTabletOrFoldable) {
+            GridLayoutManager(requireContext(), 2) // 태블릿/폴더블이면 2개의 열
+        } else {
+            LinearLayoutManager(requireContext()) // 기본은 1개의 열
+        }
     }
 
     private fun searchVocabs(vocabName: String, vocabCreator: String) {

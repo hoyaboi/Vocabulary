@@ -113,6 +113,31 @@ class Database {
         })
     }
 
+    // 단어장에서 단어 수정
+    fun updateWordInVocab(word: Word, vocabId: String, userId: String, callback: (Boolean) -> Unit) {
+        vocabReference.child(vocabId).child("ownerId").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val ownerId = snapshot.getValue(String::class.java)
+                if (ownerId == userId) {
+                    val wordData = mapOf(
+                        "english" to word.english,
+                        "korean" to word.korean
+                    )
+                    vocabReference.child(vocabId).child("words").child(word.id).updateChildren(wordData)
+                        .addOnCompleteListener { task ->
+                            callback(task.isSuccessful)
+                        }
+                } else {
+                    callback(false)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(false)
+            }
+        })
+    }
+
     // 개인 DB에 있는 단어장 목록 불러오기
     fun getVocabsForUser(userId: String, context: Context, callback: (List<Vocab>) -> Unit) {
         userReference.child(userId).child("vocabs").addValueEventListener(object : ValueEventListener {

@@ -72,7 +72,7 @@ class ShowVocabActivity : AppCompatActivity() {
                 recyclerView.adapter = null
             } else {
                 noWordText.visibility = View.GONE
-                adapter = WordAdapter(wordList, {}, {}, isCheckBoxEnabled = false)
+                adapter = WordAdapter(wordList, {}, {}, {}, isCheckBoxEnabled = false)
                 recyclerView.adapter = adapter
             }
         }

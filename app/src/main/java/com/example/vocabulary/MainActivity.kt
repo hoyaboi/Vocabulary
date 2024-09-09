@@ -145,8 +145,8 @@ class MainActivity : AppCompatActivity() {
                                 val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
                                 val rewardCalendar = Calendar.getInstance().apply {
                                     timeInMillis = rewardTime
-//                                add(Calendar.DAY_OF_YEAR, 1) // 1일 추가
-                                    add(Calendar.MINUTE, 1) // 테스트
+                                    add(Calendar.HOUR, 6) // 6시간 추가
+//                                    add(Calendar.MINUTE, 1) // 테스트
                                 }
 
                                 if (currentCalendar.before(rewardCalendar)) {

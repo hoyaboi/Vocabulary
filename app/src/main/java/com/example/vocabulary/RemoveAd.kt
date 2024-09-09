@@ -286,7 +286,7 @@ class RemoveAd : AppCompatActivity(), PurchasesUpdatedListener {
                 val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@show
                 val rewardTime = System.currentTimeMillis()
                 saveRewardTimeToFirebase(userId, rewardTime)
-                Toast.makeText(this, "하루 동안 광고가 제거됩니다", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "6시간 동안 광고가 제거됩니다", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(this, "광고가 준비되지 않았습니다", Toast.LENGTH_SHORT).show()

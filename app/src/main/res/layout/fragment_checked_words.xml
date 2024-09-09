@@ -62,16 +62,13 @@
 
             <View
                 android:id="@+id/shuffle_btn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="15dp"
                 android:background="@drawable/shuffle"
-                android:backgroundTint="@color/gray"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"/>
+                android:backgroundTint="@color/gray"/>
 
         </LinearLayout>
 
@@ -153,7 +150,7 @@
         android:id="@+id/uncheck_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="20dp"
         android:layout_above="@id/btn_container"
         android:layout_centerHorizontal="true"
         android:text="@string/uncheck"

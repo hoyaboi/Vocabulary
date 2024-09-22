@@ -227,7 +227,7 @@ class WordsActivity : AppCompatActivity() {
                                 val rewardTime = snapshot.getValue(Long::class.java) ?: 0L
                                 val rewardCalendar = Calendar.getInstance().apply {
                                     timeInMillis = rewardTime
-                                    add(Calendar.HOUR, 6) // 1일 추가
+                                    add(Calendar.HOUR, 6) // 6시간 추가
 //                                    add(Calendar.MINUTE, 1) // 테스트
                                 }
 
@@ -366,6 +366,7 @@ class WordsActivity : AppCompatActivity() {
     private fun exitEditMode() {
         isEditMode = false
         adapter.enableEditMode(false)
+        addWordButton.isEnabled = true
         editWordText.visibility = View.GONE
         editWordButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.white)
     }

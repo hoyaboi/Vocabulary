@@ -69,42 +69,44 @@ class WordAdapter(
                 onEditWordClick(word)  // 수정 다이얼로그 호출
             }
         } else {
-            // 기본 모드에서 영어 또는 한국어 텍스트 클릭 시 숨기기 또는 보이기
-            holder.checkBox.isEnabled = true
-            holder.engText.setOnClickListener {
-                if (hiddenEnglishWords.contains(word.id)) {
-                    hiddenEnglishWords.remove(word.id)
-                    holder.engText.text = word.english
-                } else {
-                    hiddenEnglishWords.add(word.id)
-                    holder.engText.text = ""
+            if (isCheckBoxEnabled) {
+                // 기본 모드에서 영어 또는 한국어 텍스트 클릭 시 숨기기 또는 보이기
+                holder.checkBox.isEnabled = true
+                holder.engText.setOnClickListener {
+                    if (hiddenEnglishWords.contains(word.id)) {
+                        hiddenEnglishWords.remove(word.id)
+                        holder.engText.text = word.english
+                    } else {
+                        hiddenEnglishWords.add(word.id)
+                        holder.engText.text = ""
+                    }
                 }
-            }
 
-            holder.korText.setOnClickListener {
-                if (hiddenKoreanWords.contains(word.id)) {
-                    hiddenKoreanWords.remove(word.id)
-                    holder.korText.text = word.korean
-                } else {
-                    hiddenKoreanWords.add(word.id)
-                    holder.korText.text = ""
+                holder.korText.setOnClickListener {
+                    if (hiddenKoreanWords.contains(word.id)) {
+                        hiddenKoreanWords.remove(word.id)
+                        holder.korText.text = word.korean
+                    } else {
+                        hiddenKoreanWords.add(word.id)
+                        holder.korText.text = ""
+                    }
                 }
-            }
 
-            // 체크박스 선택 로직
-            val isChecked = selectedWords.contains(word)
-            updateCheckBox(holder.checkBoxImage, isChecked)
+                // 체크박스 선택 로직
+                val isChecked = selectedWords.contains(word)
+                updateCheckBox(holder.checkBoxImage, isChecked)
 
-            holder.checkBox.setOnClickListener {
-                val currentCheckedState = selectedWords.contains(word)
-                if (currentCheckedState) {
-                    selectedWords.remove(word)
-                } else {
-                    selectedWords.add(word)
+                holder.checkBox.setOnClickListener {
+                    val currentCheckedState = selectedWords.contains(word)
+                    if (currentCheckedState) {
+                        selectedWords.remove(word)
+                    } else {
+                        selectedWords.add(word)
+                    }
+                    updateCheckBox(holder.checkBoxImage, !currentCheckedState)
+                    onCheckChanged(selectedWords.isNotEmpty())
+                    onAllItemsChecked(selectedWords.size == items.size)
                 }
-                updateCheckBox(holder.checkBoxImage, !currentCheckedState)
-                onCheckChanged(selectedWords.isNotEmpty())
-                onAllItemsChecked(selectedWords.size == items.size)
             }
         }
     }
